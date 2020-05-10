@@ -20,15 +20,18 @@ University](https://github.com/CSSEGISandData/COVID-19):
 ./updateData.sh
 ```
 
-After this, you can extract the Data of most countries like this
+For most countries, you can then extract the curve of the estimated
+basic reproduction number like this:
 
 ```
 COUNTRY="Germany"
 ./estimateR.py "$COUNTRY" > "r-estimate-$COUNTRY.csv"
 ```
 
-You can then visualize the result using `gnuplot`. To simplify this,
-another shell script is provided:
+The result is contained in the file "r-estimate-$COUNTRY.csv" which
+can be inspected via a spreadsheet program or visualized using tools
+like `gnuplot`. To simplify the latter, another small shell script is
+provided:
 
 ```
 COUNTRY="Germany"
