@@ -19,6 +19,8 @@ set format x "%Y/%m/%d"
 
 set yrange [0:2.5]
 
+set title "Curves for $COUNTRY"
+
 plot "r-estimate-$COUNTRY.csv" using 1:6 w lp, "r-estimate-$COUNTRY.csv" using 1:7 w lp
 
 pause -1 "press ENTER to finish"

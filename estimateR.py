@@ -92,6 +92,13 @@ for file in filesList:
                 numCases = int(fields[3])
             else:
                 continue
+        elif country == "Australia":
+            # for australia, the individual territory are reported,
+            # but no ZIP codes...
+            if fields[3] == country and fields[0] == "":
+                numCases = int(fields[7])
+            else:
+                continue
         elif fields[1] == country and (fields[0] == "" or fields[0] == country):
             # the format of the data changed at some point in
             # march. we can also make use the old format...
