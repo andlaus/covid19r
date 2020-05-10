@@ -70,7 +70,6 @@ def fileNameToDateTime(fileName):
     return dt
 filesList.sort(key=fileNameToDateTime)
 
-print("Date Cases")
 timeList = []
 totalCases = []
 deltaCases = []
@@ -129,6 +128,7 @@ for i, n in enumerate(deltaCasesConv):
     estimatedR.append(R)
 
 # print the results
+print('Date "Total Cases" "New Cases" "Smoothened Total Cases" "Smoothened New Cases" "R Estimate"')
 for i in range(0, len(timeList)):
     print("{} {} {} {} {} {}".format(timeList[i].strftime("%Y-%m-%d"),
                                      totalCases[i],
