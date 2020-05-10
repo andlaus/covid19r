@@ -12,8 +12,9 @@ distribution which has [Python3](https://python.org) and
 results, having [gnuplot](http://www.gnuplot.info) also installed is
 highly advised.
 
-First, you need to clone (or if you already run the script, update)
-the input data from [Johns Hopkins University](https://github.com/CSSEGISandData/COVID-19):
+First, you need to clone (or update, if you already ran the script in
+the past) the input data from [Johns Hopkins
+University](https://github.com/CSSEGISandData/COVID-19):
 
 ```
 ./updateData.sh
