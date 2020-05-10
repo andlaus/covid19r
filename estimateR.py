@@ -77,9 +77,11 @@ for file in filesList:
     for curLine in open(dataSourceDir + "/" + file).readlines():
         fields = curLine.split(",")
         numCases = None
-        if fields[3] == country:
+        if fields[3] == country and fields[2] == "":
             numCases = int(fields[7])
         elif fields[1] == country and fields[0] == "":
+            # the format of the data changed at some point in
+            # march. we can also make use the old format...
             numCases = int(fields[3])
         else:
             # line not applicable
