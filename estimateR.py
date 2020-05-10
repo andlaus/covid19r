@@ -79,7 +79,20 @@ for file in filesList:
         numCases = None
         if fields[3] == country and fields[2] == "":
             numCases = int(fields[7])
-        elif fields[1] == country and fields[0] == "":
+        elif country == "US":
+            # as usual, things are done differently in the US: we need
+            # to sum the number of cases for every ZIP code in the
+            # file. Also, some data points like Cruise ships do not
+            # have ZIP codes (we do not consider them for now)
+            if fields[3] == country and fields[0] != "":
+                numCases = int(fields[7])
+            elif fields[1] == country:
+                # before March 22, US data is state based, not zipcode
+                # based
+                numCases = int(fields[3])
+            else:
+                continue
+        elif fields[1] == country and (fields[0] == "" or fields[0] == country):
             # the format of the data changed at some point in
             # march. we can also make use the old format...
             numCases = int(fields[3])
@@ -89,18 +102,24 @@ for file in filesList:
 
         dt = fileNameToDateTime(file)
 
-        timeList.append(dt)
-        totalCases.append(numCases)
-        if len(totalCases) > 1:
-            # some countries like Spain report a negative number of
-            # new cases on some days, probably due to discovering
-            # errors in data collection (e.g., cases counted multiple
-            # times, etc.). while this is in general not a felony, it
-            # spoils our curves too much, so we don't allow negative
-            # new case numbers...
-            deltaCases.append(max(0, totalCases[-1] - totalCases[-2]))
-        else:
-            deltaCases.append(numCases)
+        if len(timeList) == 0 or timeList[-1] != dt:
+            timeList.append(dt)
+            totalCases.append(0)
+
+        totalCases[-1] += numCases
+
+# compute the number of daily new cases based on the total cases
+for i, numCases in enumerate(totalCases):
+    if i > 1:
+        # some countries like Spain report a negative number of
+        # new cases on some days, probably due to discovering
+        # errors in data collection (e.g., cases counted multiple
+        # times, etc.). while this is in general not a felony, it
+        # spoils our curves too much, so we don't allow negative
+        # new case numbers...
+        deltaCases.append(max(0, numCases - totalCases[i - 1]))
+    else:
+        deltaCases.append(numCases)
 
 deltaCasesConv = boxFilter(deltaCases, n=7)
 totalCasesConv = boxFilter(totalCases, n=7)

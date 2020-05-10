@@ -17,6 +17,8 @@ set timefmt "%Y-%m-%d"
 #set xrange ["2020-04-25":"2020-12-31"]
 set format x "%Y/%m/%d"
 
+set yrange [0:2.5]
+
 plot "r-estimate-$COUNTRY.csv" using 1:6 w lp
 
 pause -1 "press ENTER to finish"
