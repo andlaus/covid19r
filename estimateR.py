@@ -40,13 +40,13 @@ for i in range(0, numDaysInfectious + 1):
 # normalize the weights list
 weightsList = list(map(lambda x: x/sumWeights, weightsList))
 
-def boxFilter(data, n):
+def boxFilter(data, n, offset=0):
     result = []
 
     for i in range(0, len(data)):
         sumValues = 0
         numValues = 0
-        for j in range(max(0, int(i - n)), min(len(data), int(i + 1))):
+        for j in range(max(0, int(i - n + offset)), min(len(data), int(i + offset + 1))):
             numValues += 1
             sumValues += data[j]
 
@@ -121,8 +121,8 @@ for i, numCases in enumerate(totalCases):
     else:
         deltaCases.append(numCases)
 
-deltaCasesConv = boxFilter(deltaCases, n=7)
-totalCasesConv = boxFilter(totalCases, n=7)
+deltaCasesSmoothend = boxFilter(deltaCases, n=7)
+totalCasesSmoothend = boxFilter(totalCases, n=7)
 
 # compute the attributable weight based on the filtered case deltas
 attributableWeight = [0.0]*len(timeList)
@@ -136,24 +136,30 @@ for i in range(0, len(timeList)):
         elif dayIdx + 1 > len(timeList):
             continue
 
-        attributableWeight[dayIdx] += w * deltaCasesConv[i]
+        attributableWeight[dayIdx] += w * deltaCasesSmoothend[i]
 
 # the estimated R factor of a given day simply is the ratio between
 # number of observed cases and the attributable weight of that day.
 estimatedR = []
-for i, n in enumerate(deltaCasesConv):
+for i, n in enumerate(deltaCasesSmoothend):
     R = 3.0
-    if totalCasesConv[i] >= 100 and attributableWeight[i] > 1e-10:
+    if totalCasesSmoothend[i] >= 100 and attributableWeight[i] > 1e-10:
         R = n/attributableWeight[i]
 
     estimatedR.append(R)
 
+# for funsies, smoothen the R value again, this time with 4 days
+# central averaging
+estimatedRSmothened = boxFilter(estimatedR, 4, 2)
+
 # print the results
-print('Date "Total Cases" "New Cases" "Smoothened Total Cases" "Smoothened New Cases" "R Estimate"')
+print('Date "Total Cases" "New Cases" "Smoothened Total Cases" "Smoothened New Cases" "R Estimate" "Smoothened R Estimate"')
 for i in range(0, len(timeList)):
-    print("{} {} {} {} {} {}".format(timeList[i].strftime("%Y-%m-%d"),
-                                     totalCases[i],
-                                     deltaCases[i],
-                                     totalCasesConv[i],
-                                     deltaCasesConv[i],
-                                     estimatedR[i]))
+    print("{} {} {} {} {} {} {}"
+          .format(timeList[i].strftime("%Y-%m-%d"),
+                  totalCases[i],
+                  deltaCases[i],
+                  totalCasesSmoothend[i],
+                  deltaCasesSmoothend[i],
+                  estimatedR[i],
+                  estimatedRSmothened[i]))
