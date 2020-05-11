@@ -1,4 +1,44 @@
 #! /usr/bin/python3
+#
+# This script computes an estimate of the "reverse" basic reproduction
+# number R of SARS CoV 2 for a country. Notes/Caveats:
+#
+# - The approach taken by this script is not scientifically validated,
+#   although it looks quite reasonable to me.
+# - "Reverse R" means that it is an estimate of the past reproduction
+#   number of infectious cases that are needed to cause the cases seem at
+#   given day.
+# - Due to the way this is implemented, the numbers for the last three
+#   days will slightly increase once new data becomes available! The
+#   rationale for this that cases reported on a given day could have
+#   caused cases reported on an earlier day.
+# - An "infectious case" is an active case that has not been
+#   recognized. Once a case has been discovered, we assume that this
+#   person is quarantined and will not infect others anymore.
+# - The curves produced here can only be as good as the input data for
+#   a given country. In particular, they might be quite significantly
+#   off if the respective country's data aquisition system and/or
+#   testing system get overwhelmed.
+# - We assume that all infectious cases will be reported
+#   eventually. This is certainly not the case, but as long as the
+#   ratio of undiscovered to total cases remains constant (it probably
+#   doesn't, see previous bullet point), this should not matter.
+# - For small numbers, the R factor is subject to noise and not very
+#   significant in the first place. For example this happens for
+#   Taiwan.
+#
+# TODO/IDEAS:
+#
+# - Add an estimate of the confidence intervals. This involves getting
+#   a grip on the quality of the input data as well as considering the
+#   total number of cases.
+# - Add a "political advice" system: Given a level of acceptable risk,
+#   produce a number of whether loosening or tightening restrictions
+#   is advisable. Besides the user input of the allowable risk level
+#   and the estimate of R, this involves considering the total active
+#   case numbers per capita, the confidence intervall of the estimate
+#   as well as the reporting delay. Only producing this on a weekly
+#   basis would be a bonus.
 import os
 import sys
 import datetime
