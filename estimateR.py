@@ -135,10 +135,18 @@ totalCases = []
 deltaCases = []
 for file in filesList:
     for curLine in open(dataSourceDir + "/" + file).readlines():
+        # some countries have weird names and are not unique over
+        # time, rectify this
+        curLine = curLine.replace('"Korea, South"', "South Korea")
+        curLine = curLine.replace('Taiwan*', "Taiwan")
+        
         fields = curLine.split(",")
         numCases = None
-        if fields[3] == country and fields[2] == "":
-            numCases = int(fields[7])
+        if fields[3] == country and fields[0] == "":
+            try:
+                numCases = int(fields[7])
+            except:
+                numCases = 0
         elif country == "US":
             # as usual, things are done differently in the US: we need
             # to sum the number of cases for every ZIP code in the
@@ -152,17 +160,20 @@ for file in filesList:
                 numCases = int(fields[3])
             else:
                 continue
-        elif country == "Australia":
-            # for australia, the individual territory are reported,
-            # but no ZIP codes...
+        elif country in ("Australia", "Canada", "China", "Mexico"):
+            # for the above countries, individual provinces are
+            # reported, but no ZIP codes...
             if fields[3] == country and fields[0] == "":
                 numCases = int(fields[7])
             else:
                 continue
         elif fields[1] == country and (fields[0] == "" or fields[0] == country):
-            # the format of the data changed at some point in
-            # march. we can also make use the old format...
-            numCases = int(fields[3])
+            try:
+                # the format of the data changed at some point in
+                # march. we can also make use the old format...
+                numCases = int(fields[3])
+            except:
+                numCases = 0
         else:
             # line not applicable
             continue
