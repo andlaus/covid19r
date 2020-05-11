@@ -1,24 +1,37 @@
 #! /usr/bin/python3
 #
 # This script computes an estimate of the "reverse" basic reproduction
-# number R of SARS CoV 2 for a country. Notes/Caveats:
+# number R of SARS CoV 2 for a country.
 #
-# - The approach taken by this script is not scientifically validated,
-#   although it looks quite reasonable to me.
+# Notes/Caveats:
+#
 # - "Reverse R" means that it is an estimate of the past reproduction
-#   number of infectious cases that are needed to cause the cases seem at
-#   given day.
-# - Due to the way this is implemented, the numbers for the last three
-#   days will slightly increase once new data becomes available! The
-#   rationale for this that cases reported on a given day could have
-#   caused cases reported on an earlier day.
-# - An "infectious case" is an active case that has not been
-#   recognized. Once a case has been discovered, we assume that this
-#   person is quarantined and will not infect others anymore.
-# - The curves produced here can only be as good as the input data for
-#   a given country. In particular, they might be quite significantly
-#   off if the respective country's data aquisition system and/or
-#   testing system get overwhelmed.
+#   number of infectious cases that are needed to cause the cases seen at
+#   a given day.
+# - The approach taken by this script is not scientifically validated,
+#   although it looks quite reasonable to me:
+#   - We assume that the probability that somebody infects someone else
+#     who is reported follows a binomial distribution which is slightly
+#     skewed towards the future.
+#   - Due to the way this is implemented, the numbers for the last three
+#     days will thus slightly increase once new data becomes available! The
+#     rationale for this is that cases reported on a given day could have
+#     caused some of the cases reported on earlier days.
+#   - An "infectious case" is an active case that has not been
+#     recognized. Once a case has been discovered, we assume that this
+#     person gets quarantined and will not infect others anymore. It will
+#     still affect the reported numbers of the following days due to
+#     diagnostic and reporting delays.
+#   - To reduce statistical noise, the curve is smoothened using a 14
+#     day running average. The reason for this is that the data of all
+#     countries seems to exhibit a fair amount of statistical noise
+#     and almost all show strong oscilations with a weekly cycle
+#     ("weekend effect"). Both the raw and the smoothened
+#     estimates of reverse R are included in the result data, though.
+# - The curves produced here can at most be as good as the input data
+#   for a given country. In particular, this means that they might be
+#   quite significantly off if the respective country's data
+#   aquisition system and/or testing system get overwhelmed.
 # - We assume that all infectious cases will be reported
 #   eventually. This is certainly not the case, but as long as the
 #   ratio of undiscovered to total cases remains constant (it probably
