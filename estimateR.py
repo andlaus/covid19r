@@ -183,21 +183,20 @@ for i in range(0, len(timeList)):
         elif dayIdx + 1 > len(timeList):
             continue
 
-        attributableWeight[dayIdx] += w * deltaCasesSmoothend[i]
+        attributableWeight[dayIdx] += w * deltaCases[i]
 
 # the estimated R factor of a given day simply is the ratio between
 # number of observed cases and the attributable weight of that day.
 estimatedR = []
-for i, n in enumerate(deltaCasesSmoothend):
+for i, n in enumerate(deltaCases):
     R = 3.0
     if totalCasesSmoothend[i] >= 100 and attributableWeight[i] > 1e-10:
         R = n/attributableWeight[i]
 
     estimatedR.append(R)
 
-# for funsies, smoothen the R value again, this time with 4 days
-# central averaging
-estimatedRSmothened = boxFilter(estimatedR, 4, 2)
+# smoothen the R value, the inputs are generally much too noisy to be used directly
+estimatedRSmothened = boxFilter(estimatedR, 14)
 
 # print the results
 print('Date "Total Cases" "New Cases" "Smoothened Total Cases" "Smoothened New Cases" "R Estimate" "Smoothened R Estimate"')
