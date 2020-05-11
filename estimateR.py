@@ -22,7 +22,7 @@
 #     person gets quarantined and will not infect others anymore. It will
 #     still affect the reported numbers of the following days due to
 #     diagnostic and reporting delays, though.
-#   - To reduce statistical noise, the curve is smoothened using a 14
+#   - To reduce statistical noise, the curve is smoothened using a 7
 #     day running average. The reason for this is that the data of all
 #     countries seems to exhibit a fair amount of statistical noise
 #     and almost all countries show strong oscilations with a weekly cycle
@@ -106,7 +106,7 @@ def boxFilter(data, n, offset=0):
     for i in range(0, len(data)):
         sumValues = 0
         numValues = 0
-        for j in range(max(0, int(i - n + offset)), min(len(data), int(i + offset + 1))):
+        for j in range(max(0, int(i - n + 1 + offset)), min(len(data), int(i + offset) + 1)):
             numValues += 1
             sumValues += data[j]
 
@@ -216,7 +216,7 @@ for i, n in enumerate(deltaCases):
     estimatedR.append(R)
 
 # smoothen the R value, the inputs are generally much too noisy to be used directly
-estimatedRSmothened = boxFilter(estimatedR, 14)
+estimatedRSmothened = boxFilter(estimatedR, 7)
 
 # print the results
 print('Date "Total Cases" "New Cases" "Smoothened Total Cases" "Smoothened New Cases" "R Estimate" "Smoothened R Estimate"')
