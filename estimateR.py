@@ -14,24 +14,25 @@
 #     who is reported follows a binomial distribution which is slightly
 #     skewed towards the future.
 #   - Due to the way this is implemented, the numbers for the last three
-#     days will thus slightly increase once new data becomes available! The
+#     days will thus slightly decrease once new data becomes available! The
 #     rationale for this is that cases reported on a given day could have
 #     caused some of the cases reported on earlier days.
 #   - An "infectious case" is an active case that has not been
 #     recognized. Once a case has been discovered, we assume that this
 #     person gets quarantined and will not infect others anymore. It will
 #     still affect the reported numbers of the following days due to
-#     diagnostic and reporting delays.
+#     diagnostic and reporting delays, though.
 #   - To reduce statistical noise, the curve is smoothened using a 14
 #     day running average. The reason for this is that the data of all
 #     countries seems to exhibit a fair amount of statistical noise
-#     and almost all show strong oscilations with a weekly cycle
+#     and almost all countries show strong oscilations with a weekly cycle
 #     ("weekend effect"). Both the raw and the smoothened
-#     estimates of reverse R are included in the result data, though.
-# - The curves produced here can at most be as good as the input data
+#     estimates of reverse R are included in the result data.
+# - The curves produced here can be at most as good as the input data
 #   for a given country. In particular, this means that they might be
 #   quite significantly off if the respective country's data
-#   aquisition system and/or testing system get overwhelmed.
+#   aquisition system and/or testing system get overwhelmed or on days
+#   around where the reporting methodology gets changed.
 # - We assume that all infectious cases will be reported
 #   eventually. This is certainly not the case, but as long as the
 #   ratio of undiscovered to total cases remains constant (it probably
@@ -52,6 +53,12 @@
 #   case numbers per capita, the confidence intervall of the estimate
 #   as well as the reporting delay. Only producing this on a weekly
 #   basis would be a bonus.
+# - To reduce the impact of unreported cases, check if the number of
+#   reported deaths is a better proxy for the number of total
+#   cases. The main problems here are that this data is even more
+#   delayed than the number of confirmed cases and that it seems to be
+#   even noisier and may be more affected by external factors such as age
+#   distribution of the cases.
 import os
 import sys
 import datetime
