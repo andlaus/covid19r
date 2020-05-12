@@ -103,14 +103,28 @@ weightsList = list(map(lambda x: x/sumWeights, weightsList))
 def boxFilter(data, n, offset=0):
     result = []
 
+    # TODO: the data may have gaps or redundancies, i.e., dates where
+    # no data point or multiple data points are available. So far we
+    # just detect and warn about this...
+
+    hasGaps = False
     for i in range(0, len(data)):
         sumValues = 0
         numValues = 0
-        for j in range(max(0, int(i - n + 1 + offset)), min(len(data), int(i + offset) + 1)):
+
+        j0 = max(0, int(i - n + 1 + offset))
+        j1 = min(len(data), int(i + offset) + 1)
+        for j in range(j0, j1):
             numValues += 1
             sumValues += data[j]
 
+        dt = timeList[j1 - 1] - timeList[j0]
+        hasGaps = hasGaps or (dt.days + 1 != numValues)
+
         result.append(sumValues/numValues)
+
+    if hasGaps:
+        print("Warning: Input data seems to have gaps or multiples", file=sys.stderr)
 
     return result
 
