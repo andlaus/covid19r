@@ -26,7 +26,7 @@
       var countryList = [];
       var countryDataToPlot = {};
 
-      function readCountryList()
+      function readCountryList(onComplete = null)
       {
           var clRawFile = new XMLHttpRequest();
           clRawFile.open("GET", "processed-data/countries.csv", false);
@@ -45,6 +45,8 @@
                                      }
                                  }
                              });
+                  if (onComplete)
+                      onComplete();
               }
           };
           clRawFile.send(null);
@@ -105,7 +107,7 @@
           
       }
 
-      readCountryList();
+      readCountryList(function () { console.log("read country list"); });
 
       addCountry("Germany");
       addCountry("Italy");
