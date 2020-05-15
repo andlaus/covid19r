@@ -60,10 +60,9 @@
               plotlyData.push(...countryDataToPlot[c]);
           }
 
-          Plotly.newPlot(/*id=*/'r-plot', plotlyData);
+          Plotly.newPlot(/*domElementId=*/'r-plot', plotlyData);
       }
           
-      
       function addCountry(country)
       {
           var rawFile = new XMLHttpRequest();
