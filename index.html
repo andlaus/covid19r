@@ -10,68 +10,108 @@
     <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <title>Covid-19 Basic Reproduction Number Estimates</title>
+    <title>Covid-19 Effective Reproduction Number (R) Estimates</title>
   </head>
   
   <body style="background-color: #fff">
-    <h1>Hello</h1>
+    <h1>Covid-19 Effective Reproduction Number (R) Estimates
+    <img src="poware-logo.svg" style="height: 100px; float:right;" />
+    </h1>
 
     <div id="r-plot" style="width: 1200px; height: 900px">
     </div>
 
     <script>
       var data = [];
+      var countryList = [];
+      var countryDataToPlot = {};
 
-      var rawFile = new XMLHttpRequest();
-      country = "Germany";
-      rawFile.open("GET", "r-estimate-"+country+".csv", false);
-      rawFile.overrideMimeType("text/csv");
-      rawFile.onreadystatechange = function ()
+      function readCountryList()
       {
-          if(rawFile.readyState === 4 && (rawFile.status === 200 || rawFile.status == 0))
+          var clRawFile = new XMLHttpRequest();
+          clRawFile.open("GET", "processed-data/countries.csv", false);
+          clRawFile.overrideMimeType("text/csv");
+          clRawFile.onreadystatechange = function ()
           {
-              Papa.parse(rawFile.responseText,
-                         {
-                             delimitersToGuess: [ ' ' ],
-                             complete: function(results) {
-                                 console.log("Finished:", results.data);
-                                 let xPoints = [];
-                                 let yPointsR = [];
-                                 let yPointsSmoothR = [];
-
-                                 let colIdxR = 5;
-                                 let colIdxSmoothR = 6;
-
-                                 for (let i = 1; i < results.data.length; i++) {
-                                     xPoints.push(results.data[i][0]);
-                                     yPointsR.push(results.data[i][colIdxR]);
-                                     yPointsSmoothR.push(results.data[i][colIdxSmoothR]);
+              if(clRawFile.readyState === 4 && (clRawFile.status === 200 || clRawFile.status == 0))
+              {
+                  Papa.parse(clRawFile.responseText,
+                             {
+                                 delimitersToGuess: [ ' ' ],
+                                 complete: function(results) {
+                                     for (var i = 0; i < results.data.length; i++) {
+                                         if (results.data[i].length > 0)
+                                             countryList.push(results.data[i][0])
+                                     }
                                  }
+                             });
+              }
+          };
+          clRawFile.send(null);
+      };
 
-                                 
-                                 data.push({
-                                     x: xPoints,
-                                     y: yPointsR,
-                                     mode: 'lines',
-                                     name: country + ", " + results.data[0][colIdxR],
-                                 });
-                                 data.push({
-                                     x: xPoints,
-                                     y: yPointsSmoothR,
-                                     mode: 'lines',
-                                     name: country + ", " + results.data[0][colIdxSmoothR],
-                                 });
+      function updatePlot()
+      {
+          var plotlyData = [];
 
-                                 let layout = {
-                                     //title: 'Data'
-                                 };
-
-                                 Plotly.newPlot('r-plot', data, layout);
-                             }
-                         });
+          for (var c in countryDataToPlot) {
+              plotlyData.push(...countryDataToPlot[c]);
           }
+
+          Plotly.newPlot(/*id=*/'r-plot', plotlyData);
       }
-      rawFile.send(null);
+          
+      
+      function addCountry(country)
+      {
+          var rawFile = new XMLHttpRequest();
+          rawFile.open("GET", "processed-data/"+country+".csv", false);
+          rawFile.overrideMimeType("text/csv");
+          rawFile.onreadystatechange = function ()
+          {
+              if(rawFile.readyState === 4 && (rawFile.status === 200 || rawFile.status == 0))
+              {
+                  Papa.parse(rawFile.responseText,
+                             {
+                                 delimitersToGuess: [ ' ' ],
+                                 complete: function(results) {
+                                     let xPoints = [];
+                                     let yPointsR = [];
+                                     let yPointsSmoothR = [];
+
+                                     let colIdxR = 5;
+                                     let colIdxSmoothR = 6;
+
+                                     for (let i = 1; i < results.data.length; i++) {
+                                         xPoints.push(results.data[i][0]);
+                                         yPointsR.push(results.data[i][colIdxR]);
+                                         yPointsSmoothR.push(results.data[i][colIdxSmoothR]);
+                                     }
+
+                                     var data = [];
+                                     data.push({
+                                         x: xPoints,
+                                         y: yPointsSmoothR,
+                                         mode: 'lines',
+                                         name: country + ", " + results.data[0][colIdxSmoothR],
+                                     });
+
+                                     countryDataToPlot[country] = data;
+                                 }
+                             });
+              }
+          }
+          rawFile.send(null);
+          
+      }
+
+      readCountryList();
+
+      addCountry("Germany");
+      addCountry("Italy");
+      addCountry("US");
+
+      updatePlot();
     </script>
 
 
