@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <script src="plotly-basic.min.js"></script>
+    <script src="papaparse.min.js"></script>
+
+    <link rel="stylesheet" href="css/covid19r.css" />
+    <link rel="shortcut icon" href="images/favicon.png" type="image/x-icon" />
+
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Covid-19 Basic Reproduction Number Estimates</title>
+  </head>
+  
+  <body style="background-color: #fff">
+    <h1>Hello</h1>
+
+    <div id="r-plot" style="width: 1200px; height: 900px">
+    </div>
+
+    <script>
+      var data = [];
+
+      var rawFile = new XMLHttpRequest();
+      country = "Germany";
+      rawFile.open("GET", "r-estimate-"+country+".csv", false);
+      rawFile.overrideMimeType("text/csv");
+      rawFile.onreadystatechange = function ()
+      {
+          if(rawFile.readyState === 4 && (rawFile.status === 200 || rawFile.status == 0))
+          {
+              Papa.parse(rawFile.responseText,
+                         {
+                             delimitersToGuess: [ ' ' ],
+                             complete: function(results) {
+                                 console.log("Finished:", results.data);
+                                 let xPoints = [];
+                                 let yPointsR = [];
+                                 let yPointsSmoothR = [];
+
+                                 let colIdxR = 5;
+                                 let colIdxSmoothR = 6;
+
+                                 for (let i = 1; i < results.data.length; i++) {
+                                     xPoints.push(results.data[i][0]);
+                                     yPointsR.push(results.data[i][colIdxR]);
+                                     yPointsSmoothR.push(results.data[i][colIdxSmoothR]);
+                                 }
+
+                                 
+                                 data.push({
+                                     x: xPoints,
+                                     y: yPointsR,
+                                     mode: 'lines',
+                                     name: country + ", " + results.data[0][colIdxR],
+                                 });
+                                 data.push({
+                                     x: xPoints,
+                                     y: yPointsSmoothR,
+                                     mode: 'lines',
+                                     name: country + ", " + results.data[0][colIdxSmoothR],
+                                 });
+
+                                 let layout = {
+                                     //title: 'Data'
+                                 };
+
+                                 Plotly.newPlot('r-plot', data, layout);
+                             }
+                         });
+          }
+      }
+      rawFile.send(null);
+    </script>
+
+
+  </body>
+</html>
