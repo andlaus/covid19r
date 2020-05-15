@@ -7,7 +7,7 @@ fi
 
 COUNTRY="$1"
 
-FIELDS="6 7"
+FIELDS="6 12"
 RANGE="set yrange [:2.5];"
 if test "$#" -gt 1; then
     FIELDS="${@:2}"

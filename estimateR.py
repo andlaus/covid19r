@@ -219,6 +219,8 @@ for fileName in filesList:
 
 # the number of daily new cases based on the total cases
 deltaCases = []
+# the number of daily deaths based on the total deaths
+deltaDeaths = []
 # number of deaths divided by 0.017 (the lethality on the Diamond
 # Princess cruise ship)
 totalCases2 = []
@@ -231,17 +233,15 @@ for i, numCases in enumerate(totalCases):
         # spoils our curves too much, so we don't allow negative
         # new case numbers...
         deltaCases.append(max(0, numCases - totalCases[i - 1]))
+        deltaDeaths.append(max(0, totalDeaths[i] - totalDeaths[i - 1]))
     else:
         deltaCases.append(numCases)
+        deltaDeaths.append(totalDeaths[i])
 
     # death is delayed relative to infection for about three weeks and
     # relative to confirmation for about 14 days...
     if i >= 14:
         totalCases2.append(totalDeaths[i - 14]/0.017)
-
-deltaCasesSmoothend = boxFilter(deltaCases, n=7)
-totalCasesSmoothend = boxFilter(totalCases, n=7)
-totalCases2Smoothend = boxFilter(totalCases2, n=7)
 
 # compute the attributable weight based on the filtered case deltas
 attributableWeight = [0.0]*len(timeList)
@@ -262,29 +262,64 @@ for i in range(0, len(timeList)):
 estimatedR = []
 for i, n in enumerate(deltaCases):
     R = 3.0
-    if totalCasesSmoothend[i] >= 100 and attributableWeight[i] > 1e-10:
-        R = n/attributableWeight[i]
+    if totalCases[i] >= 100 and attributableWeight[i] > 1e-10:
+        R = deltaCases[i]/attributableWeight[i]
 
     estimatedR.append(R)
 
-# smoothen the R value, the inputs are generally much too noisy to be used directly
-estimatedRSmothened = boxFilter(estimatedR, 7)
+totalCasesSmoothened = boxFilter(totalCases, n=7)
+totalCases2Smoothened = boxFilter(totalCases2, n=7)
+deltaCasesSmoothened = boxFilter(deltaCases, n=7)
+totalDeathsSmoothened = boxFilter(totalDeaths, 7)
+deltaDeathsSmoothened = boxFilter(deltaDeaths, 7)
+estimatedRSmoothened = boxFilter(estimatedR, 7)
 
 # print the results
-print('''Date "Total Cases" "New Cases" "Smoothened Total Cases" "Smoothened New Cases" "R Estimate" "Smoothened R Estimate" "'Diamond Princess Estimate'" "Smoothened 'Diamond Princess Estimate'"''')
+print('Date '+ \
+      '"Total Cases" '+ \
+      '"New Cases" '+ \
+      '"Total Deaths" '+ \
+      '"New Deaths" '+ \
+      '"Estimated R" '+ \
+      '"\'Diamond Princess Total Case Estimate\'" '+ \
+      '"Smoothened Total Cases" '+ \
+      '"Smoothened New Cases" '+ \
+      '"Smoothened Total Deaths" '+ \
+      '"Smoothened New Deaths" '+ \
+      '"Smoothened Estimated R" '+ \
+      '"Smoothened \'Diamond Princess Total Case Estimate\'" ')
 for i in range(0, len(timeList)):
     tc2 = ""
-    tc2s = ""
+    tc2s = "\"\""
     if i < len(totalCases2):
         tc2 = totalCases2[i]
-        tc2s = totalCases2Smoothend[i]
-    print("{} {} {} {} {} {} {} {} {}"
-          .format(timeList[i].strftime("%Y-%m-%d"),
-                  totalCases[i],
-                  deltaCases[i],
-                  totalCasesSmoothend[i],
-                  deltaCasesSmoothend[i],
-                  estimatedR[i],
-                  estimatedRSmothened[i],
-                  tc2,
-                  tc2s))
+        tc2s = totalCases2Smoothened[i]
+
+        formatString = "{date} " + \
+            "{totalCases} "+ \
+            "{newCases} "+ \
+            "{totalDeaths} "+ \
+            "{newDeaths} "+ \
+            "{estimatedR} "+ \
+            "{dpTotalCasesEstimate} "+ \
+            "{smoothenedTotalCases} "+ \
+            "{smoothenedNewCases} "+ \
+            "{smoothenedTotalDeaths} "+ \
+            "{smoothenedNewDeaths} "+ \
+            "{smoothenedEstimatedR} "+ \
+            "{smoothenedDpTotalCasesEstimate} "
+        print(formatString.format(**{
+                  "date": timeList[i].strftime("%Y-%m-%d"),
+                  "totalCases":totalCases[i],
+                  "newCases":deltaCases[i],
+                  "totalDeaths":totalDeaths[i],
+                  "newDeaths":deltaDeaths[i],
+                  "estimatedR":estimatedR[i],
+                  "dpTotalCasesEstimate":tc2,
+                  "smoothenedTotalCases":totalCasesSmoothened[i],
+                  "smoothenedNewCases":deltaCasesSmoothened[i],
+                  "smoothenedTotalDeaths":totalDeaths[i],
+                  "smoothenedNewDeaths":deltaDeaths[i],
+                  "smoothenedEstimatedR":estimatedRSmoothened[i],
+                  "smoothenedDpTotalCasesEstimate":tc2s,
+            }))
