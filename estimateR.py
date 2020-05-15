@@ -146,21 +146,24 @@ filesList.sort(key=fileNameToDateTime)
 
 timeList = []
 totalCases = []
-deltaCases = []
-for file in filesList:
-    for curLine in open(dataSourceDir + "/" + file).readlines():
+totalDeaths = []
+for fileName in filesList:
+    for curLine in open(dataSourceDir + "/" + fileName).readlines():
         # some countries have weird names and are not unique over
         # time, rectify this
         curLine = curLine.replace('"Korea, South"', "South Korea")
         curLine = curLine.replace('Taiwan*', "Taiwan")
+        curLine = curLine.replace('Mainland China', "China")
         
         fields = curLine.split(",")
         numCases = None
         if fields[3] == country and fields[0] == "":
             try:
                 numCases = int(fields[7])
+                numDeaths = int(fields[8])
             except:
                 numCases = 0
+                numDeaths = 0
         elif country == "US":
             # as usual, things are done differently in the US: we need
             # to sum the number of cases for every ZIP code in the
@@ -168,10 +171,19 @@ for file in filesList:
             # have ZIP codes (we do not consider them for now)
             if fields[3] == country and fields[0] != "":
                 numCases = int(fields[7])
+                numDeaths = int(fields[8])
             elif fields[1] == country:
                 # before March 22, US data is state based, not zipcode
                 # based
-                numCases = int(fields[3])
+                if fields[3] != "":
+                    numCases = int(fields[3])
+                else:
+                    numCases = 0
+
+                if fields[4] != "":
+                    numDeaths = int(fields[4])
+                else:
+                    numDeaths = 0
             else:
                 continue
         elif country in ("Australia", "Canada", "China", "Mexico"):
@@ -179,6 +191,7 @@ for file in filesList:
             # reported, but no ZIP codes...
             if fields[3] == country and fields[0] == "":
                 numCases = int(fields[7])
+                numDeaths = int(fields[8])
             else:
                 continue
         elif fields[1] == country and (fields[0] == "" or fields[0] == country):
@@ -186,21 +199,29 @@ for file in filesList:
                 # the format of the data changed at some point in
                 # march. we can also make use the old format...
                 numCases = int(fields[3])
+                numDeaths = int(fields[4])
             except:
                 numCases = 0
+                numDeaths = 0
         else:
             # line not applicable
             continue
 
-        dt = fileNameToDateTime(file)
+        dt = fileNameToDateTime(fileName)
 
         if len(timeList) == 0 or timeList[-1] != dt:
             timeList.append(dt)
             totalCases.append(0)
+            totalDeaths.append(0)
 
         totalCases[-1] += numCases
+        totalDeaths[-1] += numDeaths
 
-# compute the number of daily new cases based on the total cases
+# the number of daily new cases based on the total cases
+deltaCases = []
+# number of deaths divided by 0.017 (the lethality on the Diamond
+# Princess cruise ship)
+totalCases2 = []
 for i, numCases in enumerate(totalCases):
     if i > 1:
         # some countries like Spain report a negative number of
@@ -213,8 +234,14 @@ for i, numCases in enumerate(totalCases):
     else:
         deltaCases.append(numCases)
 
+    # death is delayed relative to infection for about three weeks and
+    # relative to confirmation for about 14 days...
+    if i >= 14:
+        totalCases2.append(totalDeaths[i - 14]/0.017)
+
 deltaCasesSmoothend = boxFilter(deltaCases, n=7)
 totalCasesSmoothend = boxFilter(totalCases, n=7)
+totalCases2Smoothend = boxFilter(totalCases2, n=7)
 
 # compute the attributable weight based on the filtered case deltas
 attributableWeight = [0.0]*len(timeList)
@@ -244,13 +271,20 @@ for i, n in enumerate(deltaCases):
 estimatedRSmothened = boxFilter(estimatedR, 7)
 
 # print the results
-print('Date "Total Cases" "New Cases" "Smoothened Total Cases" "Smoothened New Cases" "R Estimate" "Smoothened R Estimate"')
+print('''Date "Total Cases" "New Cases" "Smoothened Total Cases" "Smoothened New Cases" "R Estimate" "Smoothened R Estimate" "'Diamond Princess Estimate'" "Smoothened 'Diamond Princess Estimate'"''')
 for i in range(0, len(timeList)):
-    print("{} {} {} {} {} {} {}"
+    tc2 = ""
+    tc2s = ""
+    if i < len(totalCases2):
+        tc2 = totalCases2[i]
+        tc2s = totalCases2Smoothend[i]
+    print("{} {} {} {} {} {} {} {} {}"
           .format(timeList[i].strftime("%Y-%m-%d"),
                   totalCases[i],
                   deltaCases[i],
                   totalCasesSmoothend[i],
                   deltaCasesSmoothend[i],
                   estimatedR[i],
-                  estimatedRSmothened[i]))
+                  estimatedRSmothened[i],
+                  tc2,
+                  tc2s))
