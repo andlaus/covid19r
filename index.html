@@ -11,21 +11,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <title>Covid-19 Effective Reproduction Number (R) Estimates</title>
-  </head>
-  
-  <body style="background-color: #fff">
-    <h1>Covid-19 Effective Reproduction Number (R) Estimates
-    <img src="poware-logo.svg" style="height: 100px; float:right;" />
-    </h1>
-
-    <div id="r-plot" style="width: 1200px; height: 900px">
-    </div>
 
     <script>
       var data = [];
       var countryList = [];
       var countryDataToPlot = {};
-
+      
       function readCountryList(onComplete = null)
       {
           var clRawFile = new XMLHttpRequest();
@@ -60,11 +51,19 @@
               plotlyData.push(...countryDataToPlot[c]);
           }
 
-          Plotly.newPlot(/*domElementId=*/'r-plot', plotlyData);
+          var layout = {
+          };
+          
+          Plotly.newPlot(/*domElementId=*/'mainplot', plotlyData, layout, {modeBarButtonsToRemove: ["toggleSpikelines", "resetScale2d"]});
       }
           
       function addCountry(country)
       {
+          // check the country's check box
+          elem = document.getElementById("checkbox"+country);
+          elem.checked = true;
+
+          // read in the data for that country
           var rawFile = new XMLHttpRequest();
           rawFile.open("GET", "processed-data/"+country+".csv", false);
           rawFile.overrideMimeType("text/csv");
@@ -106,14 +105,69 @@
           
       }
 
-      readCountryList(function () { console.log("read country list"); });
+      function removeCountry(country)
+      {
+          // check the country's check box
+          elem = document.getElementById("checkbox"+country);
+          elem.checked = false;
 
-      addCountry("Germany");
-      addCountry("Italy");
-      addCountry("US");
+          delete countryDataToPlot[country];
+      }
 
-      updatePlot();
+      function clickedOnCountry(country)
+      {
+          elem = document.getElementById("checkbox"+country);
+
+          if (elem.checked)
+              addCountry(country);
+          else 
+              removeCountry(country);
+
+          updatePlot();
+      }
+      
+      function initPlot()
+      {
+          readCountryList(function () {
+              var countriesHtml = "";
+              for (var countryIdx in countryList) {
+                  var country = countryList[countryIdx];
+                  if (country == "")
+                      continue;
+                  countriesHtml += "<li>\n";
+                  countriesHtml += "<input id=\"checkbox"+country+"\" type=\"checkbox\" value=\""+country+"\" onchange=\"clickedOnCountry('"+country+"')\" &>\n";
+                  countriesHtml += "<label for=\""+country+"\">"+country+"</label>\n";
+                  countriesHtml += "</li>\n";
+              }
+
+              document.getElementById("countryList").innerHTML = countriesHtml;
+
+              addCountry("Germany");
+              addCountry("Italy");
+              addCountry("US");
+
+              updatePlot();
+          });
+      }
     </script>
+
+  </head>
+  
+  <body style="background-color: #fff" onload="initPlot()">
+    <h1>Covid-19 Effective Reproduction Number (R) Estimates
+    <img src="poware-logo.svg" style="z-index: 100000; height: 100px; float:right;" />
+    </h1>
+
+    <div id="mainplot" style="width: 80%; height: 80%">
+    </div>
+
+    <div id="controls">
+      Countries:
+      <div id="countryList">
+        unset
+      </div>
+
+    </div>
 
 
   </body>

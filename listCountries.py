@@ -43,4 +43,5 @@ countryList = list(set(countryList))
 countryList.sort()
 
 for country in countryList:
-    print(country)
+    if country != "":
+        print(country)
