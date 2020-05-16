@@ -61,6 +61,7 @@
 #   distribution of the cases.
 import os
 import sys
+import re
 import datetime
 import operator as op
 from functools import reduce
@@ -147,67 +148,42 @@ filesList.sort(key=fileNameToDateTime)
 timeList = []
 totalCases = []
 totalDeaths = []
+
+format1Date = datetime.datetime(2020, 3, 22)
+
 for fileName in filesList:
-    for curLine in open(dataSourceDir + "/" + fileName).readlines():
+    dt = fileNameToDateTime(fileName)
+    for i, curLine in enumerate(open(dataSourceDir + "/" + fileName).readlines()):
+        # skip first line (headlines)
+        if i == 0:
+            continue
+
         # some countries have weird names and are not unique over
         # time, rectify this
+        curLine = re.sub("\"[a-zA-Z0-9,(). ]*\",", ",", curLine)
         curLine = curLine.replace('"Korea, South"', "South Korea")
         curLine = curLine.replace('Taiwan*', "Taiwan")
         curLine = curLine.replace('Mainland China', "China")
         
         fields = curLine.split(",")
-        numCases = None
-        if fields[3] == country and fields[0] == "":
-            try:
-                numCases = int(fields[7])
-                numDeaths = int(fields[8])
-            except:
-                numCases = 0
-                numDeaths = 0
-        elif country == "US":
-            # as usual, things are done differently in the US: we need
-            # to sum the number of cases for every ZIP code in the
-            # file. Also, some data points like Cruise ships do not
-            # have ZIP codes (we do not consider them for now)
-            if fields[3] == country and fields[0] != "":
-                numCases = int(fields[7])
-                numDeaths = int(fields[8])
-            elif fields[1] == country:
-                # before March 22, US data is state based, not zipcode
-                # based
-                if fields[3] != "":
-                    numCases = int(fields[3])
-                else:
-                    numCases = 0
 
-                if fields[4] != "":
-                    numDeaths = int(fields[4])
-                else:
-                    numDeaths = 0
-            else:
-                continue
-        elif country in ("Australia", "Canada", "China", "Mexico"):
-            # for the above countries, individual provinces are
-            # reported, but no ZIP codes...
-            if fields[3] == country and fields[0] == "":
-                numCases = int(fields[7])
-                numDeaths = int(fields[8])
-            else:
-                continue
-        elif fields[1] == country and (fields[0] == "" or fields[0] == country):
-            try:
-                # the format of the data changed at some point in
-                # march. we can also make use the old format...
+        numCases = 0
+        numDeaths = 0
+        if dt < format1Date:
+            countryLine = fields[1]
+            if fields[3] != "":
                 numCases = int(fields[3])
+            if fields[4] != "":
                 numDeaths = int(fields[4])
-            except:
-                numCases = 0
-                numDeaths = 0
         else:
-            # line not applicable
-            continue
+            countryLine = fields[3]
+            if fields[7] != "":
+                numCases = int(fields[7])
+            if fields[8] != "":
+                numDeaths = int(fields[8])
 
-        dt = fileNameToDateTime(fileName)
+        if countryLine != country:
+            continue
 
         if len(timeList) == 0 or timeList[-1] != dt:
             timeList.append(dt)
@@ -232,7 +208,7 @@ for i, numCases in enumerate(totalCases):
         # times, etc.). while this is in general not a felony, it
         # spoils our curves too much, so we don't allow negative
         # new case numbers...
-        deltaCases.append(max(0, numCases - totalCases[i - 1]))
+        deltaCases.append(max(0, totalCases[i] - totalCases[i - 1]))
         deltaDeaths.append(max(0, totalDeaths[i] - totalDeaths[i - 1]))
     else:
         deltaCases.append(numCases)
@@ -289,37 +265,37 @@ print('Date '+ \
       '"Smoothened Estimated R" '+ \
       '"Smoothened \'Diamond Princess Total Case Estimate\'" ')
 for i in range(0, len(timeList)):
-    tc2 = ""
+    tc2 =  "\"\""
     tc2s = "\"\""
     if i < len(totalCases2):
         tc2 = totalCases2[i]
         tc2s = totalCases2Smoothened[i]
 
-        formatString = "{date} " + \
-            "{totalCases} "+ \
-            "{newCases} "+ \
-            "{totalDeaths} "+ \
-            "{newDeaths} "+ \
-            "{estimatedR} "+ \
-            "{dpTotalCasesEstimate} "+ \
-            "{smoothenedTotalCases} "+ \
-            "{smoothenedNewCases} "+ \
-            "{smoothenedTotalDeaths} "+ \
-            "{smoothenedNewDeaths} "+ \
-            "{smoothenedEstimatedR} "+ \
-            "{smoothenedDpTotalCasesEstimate} "
-        print(formatString.format(**{
-                  "date": timeList[i].strftime("%Y-%m-%d"),
-                  "totalCases":totalCases[i],
-                  "newCases":deltaCases[i],
-                  "totalDeaths":totalDeaths[i],
-                  "newDeaths":deltaDeaths[i],
-                  "estimatedR":estimatedR[i],
-                  "dpTotalCasesEstimate":tc2,
-                  "smoothenedTotalCases":totalCasesSmoothened[i],
-                  "smoothenedNewCases":deltaCasesSmoothened[i],
-                  "smoothenedTotalDeaths":totalDeaths[i],
-                  "smoothenedNewDeaths":deltaDeaths[i],
-                  "smoothenedEstimatedR":estimatedRSmoothened[i],
-                  "smoothenedDpTotalCasesEstimate":tc2s,
-            }))
+    formatString = "{date} " + \
+        "{totalCases} "+ \
+        "{newCases} "+ \
+        "{totalDeaths} "+ \
+        "{newDeaths} "+ \
+        "{estimatedR} "+ \
+        "{dpTotalCasesEstimate} "+ \
+        "{smoothenedTotalCases} "+ \
+        "{smoothenedNewCases} "+ \
+        "{smoothenedTotalDeaths} "+ \
+        "{smoothenedNewDeaths} "+ \
+        "{smoothenedEstimatedR} "+ \
+        "{smoothenedDpTotalCasesEstimate} "
+    print(formatString.format(**{
+        "date": timeList[i].strftime("%Y-%m-%d"),
+        "totalCases":totalCases[i],
+        "newCases":deltaCases[i],
+        "totalDeaths":totalDeaths[i],
+        "newDeaths":deltaDeaths[i],
+        "estimatedR":estimatedR[i],
+        "dpTotalCasesEstimate":tc2,
+        "smoothenedTotalCases":totalCasesSmoothened[i],
+        "smoothenedNewCases":deltaCasesSmoothened[i],
+        "smoothenedTotalDeaths":totalDeaths[i],
+        "smoothenedNewDeaths":deltaDeaths[i],
+        "smoothenedEstimatedR":estimatedRSmoothened[i],
+        "smoothenedDpTotalCasesEstimate":tc2s,
+    }))
