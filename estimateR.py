@@ -116,13 +116,20 @@ def boxFilter(data, n, offset=0):
         j0 = max(0, int(i - n + 1 + offset))
         j1 = min(len(data), int(i + offset) + 1)
         for j in range(j0, j1):
+            if data[j] is None:
+                hasGaps = True
+                continue
+
             numValues += 1
             sumValues += data[j]
 
         dt = timeList[j1 - 1] - timeList[j0]
         hasGaps = hasGaps or (dt.days + 1 != numValues)
 
-        result.append(sumValues/numValues)
+        if numValues > 0:
+            result.append(sumValues/numValues)
+        else:
+            result.append(None)
 
     if hasGaps:
         print("Warning: Input data seems to have gaps or multiples", file=sys.stderr)
@@ -239,7 +246,7 @@ for i in range(0, len(timeList)):
 # number of observed cases and the attributable weight of that day.
 estimatedR = []
 for i, n in enumerate(deltaCases):
-    R = 3.0
+    R = None
     if totalCases[i] >= 100 and attributableWeight[i] > 1e-10:
         R = deltaCases[i]/attributableWeight[i]
 
@@ -273,6 +280,8 @@ for i in range(0, len(timeList)):
         tc2 = totalCases2[i]
         tc2s = totalCases2Smoothened[i]
 
+    R = "\"\"" if estimatedR[i] is None else estimatedR[i]
+    Rs = "\"\"" if estimatedRSmoothened[i] is None else estimatedRSmoothened[i]
     formatString = "{date} " + \
         "{totalCases} "+ \
         "{newCases} "+ \
@@ -292,12 +301,12 @@ for i in range(0, len(timeList)):
         "newCases":deltaCases[i],
         "totalDeaths":totalDeaths[i],
         "newDeaths":deltaDeaths[i],
-        "estimatedR":estimatedR[i],
+        "estimatedR":R,
         "dpTotalCasesEstimate":tc2,
         "smoothenedTotalCases":totalCasesSmoothened[i],
         "smoothenedNewCases":deltaCasesSmoothened[i],
         "smoothenedTotalDeaths":totalDeaths[i],
         "smoothenedNewDeaths":deltaDeaths[i],
-        "smoothenedEstimatedR":estimatedRSmoothened[i],
+        "smoothenedEstimatedR":Rs,
         "smoothenedDpTotalCasesEstimate":tc2s,
     }))
