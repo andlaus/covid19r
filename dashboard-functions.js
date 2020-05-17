@@ -125,8 +125,8 @@ function initPlot()
             if (country == "")
                 continue;
             countriesHtml += "<li>\n";
-            countriesHtml += "<input id=\"checkbox"+country+"\" type=\"checkbox\" value=\""+country+"\" onchange=\"clickedOnCountry('"+country+"')\" &>\n";
-            countriesHtml += "<label for=\""+country+"\">"+country+"</label>\n";
+            countriesHtml += "<input id=\"checkbox"+country+"\" type=\"checkbox\" value=\""+country+"\" onchange=\"clickedOnCountry('"+country+"')\" />\n";
+            countriesHtml += "<label for=\"checkbox"+country+"\">"+country+"</label>\n";
             countriesHtml += "</li>\n";
         }
 
