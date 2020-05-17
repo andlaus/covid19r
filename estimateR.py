@@ -131,8 +131,8 @@ def boxFilter(data, n, offset=0):
         else:
             result.append(None)
 
-    if hasGaps:
-        print("Warning: Input data seems to have gaps or multiples", file=sys.stderr)
+#    if hasGaps:
+#        print("Warning: Input data seems to have gaps or multiples", file=sys.stderr)
 
     return result
 
@@ -226,7 +226,7 @@ for i, numCases in enumerate(totalCases):
     # death is delayed relative to infection for about three weeks and
     # relative to confirmation for about 14 days...
     if i >= 14:
-        totalCases2.append(totalDeaths[i - 14]/0.017)
+        totalCases2.append(totalDeaths[i - 14] * (712./13))
 
 # compute the attributable weight based on the filtered case deltas
 attributableWeight = [0.0]*len(timeList)
