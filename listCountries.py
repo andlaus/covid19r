@@ -37,6 +37,9 @@ for file in filesList:
             # line not applicable
             continue
 
+        if country in ("Cruise Ship", "MS Zaandam", "Confirmed", "Country_Region"):
+            continue
+        
         countryList.append(country)
 
 countryList = list(set(countryList))
