@@ -17,6 +17,8 @@ fi
 
 OUTPUT_DIR="processed-data"
 
+mkdir -p "$OUTPUT_DIR"
+
 ./estimateR.py "$COUNTRY" > "$OUTPUT_DIR/$COUNTRY.csv"
 
 cat > /tmp/"visualize-R-$COUNTRY.gnuplot" <<EOF
