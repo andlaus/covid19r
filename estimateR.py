@@ -160,11 +160,12 @@ for fileName in filesList:
 
         # some countries have weird names and are not unique over
         # time, rectify this
-        curLine = re.sub("\"[a-zA-Z0-9,(). ]*\",", ",", curLine)
         curLine = curLine.replace('"Korea, South"', "South Korea")
+        curLine = curLine.replace('Republic of Korea', "South Korea")
         curLine = curLine.replace('Taiwan*', "Taiwan")
         curLine = curLine.replace('Mainland China', "China")
-        
+        curLine = re.sub("\"[a-zA-Z0-9,(). ]*\",", ",", curLine) # US City names screw things up with commas in their names
+
         fields = curLine.split(",")
 
         numCases = 0
@@ -184,6 +185,7 @@ for fileName in filesList:
 
         if countryLine != country:
             continue
+
 
         if len(timeList) == 0 or timeList[-1] != dt:
             timeList.append(dt)
