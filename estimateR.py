@@ -178,7 +178,14 @@ for fileName in filesList:
         numCases = 0
         numDeaths = 0
         if dt < format1Date:
-            countryLine = fields[1]
+            if fields[0] == "Cruise Ship":
+                countryLine = "Diamond Princess"
+            elif fields[0] == "Grand Princess Cruise Ship":
+                continue # the "grand princess cruise ship" data seems to be attributed to the US, we don't want that
+            elif fields[1] == "Cruise Ship":
+                countryLine = fields[0]
+            else:
+                countryLine = fields[1]
             if fields[3] != "":
                 numCases = int(fields[3])
             if fields[4] != "":
@@ -226,7 +233,7 @@ for i, numCases in enumerate(totalCases):
     # death is delayed relative to infection for about three weeks and
     # relative to confirmation for about 14 days...
     if i >= 14:
-        totalCases2.append(totalDeaths[i - 14] * (712./13))
+        totalCases2.append(totalDeaths[i] * (712./13))
 
 # compute the attributable weight based on the filtered case deltas
 attributableWeight = [0.0]*len(timeList)
