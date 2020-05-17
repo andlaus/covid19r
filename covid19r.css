@@ -1,8 +1,13 @@
-#mainplot {
+#plotcontainer {
     width: 79%;
     max-width: calc(100% - 210px);
     height: calc(100vh - 100px);
     float: left;
+}
+
+#mainplot {
+    width: 100%;
+    height: 100%;
 }
 
 #sidebar {
@@ -18,6 +23,7 @@
 }
 
 #logocontainer {
+    margin: 10px;
     width: 100%;
     text-align: center;
 }
