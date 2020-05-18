@@ -81,6 +81,24 @@ function recalculateCurvesAndPlot()
     updatePlot();
 }
 
+function estimateR(countryName)
+{
+    // TODO: actual stuff
+    return inputData[countryName].newCases;
+}
+
+function diamondPrincessEstimate(countryName)
+{
+    // TODO: actual stuff
+    return inputData[countryName].newCases;
+}
+
+function diamondPrincessEstimateRatio(countryName)
+{
+    // TODO: actual stuff
+    return inputData[countryName].totalCases;
+}
+
 function smoothenData(d)
 {
     // TODO: box filter
@@ -108,14 +126,22 @@ function recalculateCurves()
     for (var countryName in inputData) {
         countryPlotlyData = []
 
+        var dates = inputData[countryName].dates;
         var dr = null;
         var ds = null;
         var drCaption = countryName;
         var dsCaption = countryName;
 
-        console.log("curveType: "+curveType);
+        if (curveType == "R"){
+            dr = estimateR(countryName);
+            ds = smoothenData(dr);
 
-        if (curveType == "C"){
+            drCaption += ", Estimated R";
+            dsCaption += ", Smoothened Estimated R";
+
+            // normalization does not make any sense for R factors!
+        }
+        else if (curveType == "C"){
             dr = inputData[countryName].totalCases;
             ds = smoothenData(dr);
 
@@ -145,7 +171,68 @@ function recalculateCurves()
                 dsCaption += " per Captia";
             }
         }
-        // TODO: add remaining types of curves
+        else if (curveType == "D"){
+            dr = inputData[countryName].totalDeaths;
+            ds = smoothenData(dr);
+
+            drCaption += ", Total Deaths";
+            dsCaption += ", Smoothened Total Deaths";
+
+            if (normalize) {
+                dr = normalizeData(countryName, dr);
+                ds = normalizeData(countryName, ds);
+
+                drCaption += " per Captia";
+                dsCaption += " per Captia";
+            }
+        }
+        else if (curveType == "d"){
+            dr = inputData[countryName].newDeaths;
+            ds = smoothenData(dr);
+
+            drCaption += ", New Deaths";
+            dsCaption += ", Smoothened New Deaths";
+
+            if (normalize) {
+                dr = normalizeData(countryName, dr);
+                ds = normalizeData(countryName, ds);
+
+                drCaption += " per Captia";
+                dsCaption += " per Captia";
+            }
+        }
+        else if (curveType == "P") {
+            dr = diamondPrincessEstimate(countryName);
+            ds = smoothenData(dr);
+            dates = inputData[countryName].dates.slice(0, dr.length)
+
+            drCaption += ", \"Diamond Princess Estimate\"";
+            dsCaption += ", Smoothened \"Diamond Princess Estimate\"";
+
+            if (normalize) {
+                dr = normalizeData(countryName, dr);
+                ds = normalizeData(countryName, ds);
+
+                drCaption += " per Captia";
+                dsCaption += " per Captia";
+            }
+        }
+        else if (curveType == "p"){
+            dr = diamondPrincessEstimateRatio(countryName);
+            ds = smoothenData(dr);
+            dates = inputData[countryName].dates.slice(0, dr.length)
+
+            drCaption += ", \"Diamond Princess Estimate\" to Total Cases";
+            dsCaption += ", Smoothened \"Diamond Princess Estimate\" Total Cases";
+
+            if (normalize) {
+                dr = normalizeData(countryName, dr);
+                ds = normalizeData(countryName, ds);
+
+                drCaption += " per Captia";
+                dsCaption += " per Captia";
+            }
+        }
 
         if (showRaw) {
             countryPlotlyData.push({
@@ -157,8 +244,6 @@ function recalculateCurves()
             });
         }
         if (showSmoothened) {
-            console.log("hallo smoothend: "+ds);
-
             countryPlotlyData.push({
                 x: inputData[countryName].dates,
                 y: ds,
@@ -170,8 +255,6 @@ function recalculateCurves()
 
         plotlyCountryData[countryName] = countryPlotlyData;
     }
-
-    console.log("recalculateCurves() done");
 }
 
 function addCountry(country)

@@ -23,17 +23,14 @@
     margin-bottom: 20px;
 }
 
-#curveselect, #rparameters, #smoothenparameters {
+#curveselect, #rparameters, #smoothenparameters, #countrylistbox {
     margin-top: 10px;
     margin-bottom: 20px;
 }
 
 #curveselect > select {
     margin-top: 10px;
-}
-
-#curve {
-    width: 100%;
+    max-width: 100%;
 }
 
 #options {

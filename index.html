@@ -26,11 +26,6 @@
         <a href="https://poware.org"><img id="powarelogo" src="poware-logo.svg" /></a>
       </div>
 
-      Countries:
-      <div id="countrylist">
-        unset
-      </div>
-
       <div id="curveselect">
         Curve:
         <select id="curveType" onchange="recalculateCurvesAndPlot()">
@@ -40,65 +35,72 @@
           <option value="D">Total Reported Deaths</option>
           <option value="d">New Reported Deaths</option>
           <option value="P">Total Reported Cases and "Diamond Princess Estimate"</option>
-          <!-- "Diamond Princess Estimate" to Reported Cases Ratio -->
+          <option value="p">"Diamond Princess Estimate" to Total Reported Cases</option>
         </select>
-
-        <div id="curvevariants">
-          Variants:
-
-          <li>
-            <input id="checkboxShowRaw" type="checkbox" onchange="recalculateCurvesAndPlot()">
-            <label for="checkboxShowRaw">Show Raw Curves</label>
-          </li>
-
-          <li>
-            <input id="checkboxShowSmoothened" type="checkbox" checked onchange="recalculateCurvesAndPlot()">
-            <label for="checkboxShowSmoothened">Show Smothened Curves</label>
-          </li>
-
-          <!--not implemented yet
-              
-          <li>
-            <input id="checkboxNormalize" type="checkbox" onchange="recalculateCurvesAndPlot()">
-            <label for="checkboxNormalize">Per-Captia Curves</label>
-          </li>
-          -->
-        </div>
-
-        <div id="rparameters">
-          R-Estimator Parameters:
-
-          <div class="rangewrap">
-            <label for="infectivityDays">Average Infectious Days:<!-- TODO: explainer --></label>
-            <div class="rangeInfo" id="infectivityDaysInfo">Unset</div>
-            <input type="range" min="5" max="40" value="11" class="range" id="infectivityDays" oninput="updateControlInfos()"  onchange="recalculateCurvesAndPlot()" />
-          </div>
-
-          <div>
-            <label for="peakDayActive">Peak Infectiousness Day: <!-- TODO: explainer --></label>
-            <div class="rangeInfo" id="peakDayActiveInfo">Unset</div>
-            <input type="range" min="3" max="40" value="5" class="range" id="peakDayActive" oninput="updateControlInfos()"  onchange="recalculateCurvesAndPlot()" />
-          </div>
-
-          <div>
-            <label for="firstDayActive">First Infectious Day: <!-- TODO: explainer --></label>
-            <div class="rangeInfo" id="firstDayActiveInfo">Unset</div>
-            <input type="range" min="-10" max="0" value="-3" class="range" id="firstDayActive" oninput="updateControlInfos()"  onchange="recalculateCurvesAndPlot()">
-          </div>
-
-          <!-- TODO: plot of the resulting binomial distribution -->
-        </div>
-
-        <div id="smoothenparameters">
-          Smoother Parameters:
-          <div>
-            <label for="smoothenDays">Period [Days]:<!-- TODO: explainer --></label>
-            <input type="range" min="3" max="40" value="8" class="range" id="smoothenDays" oninput="updateControlInfos()"  onchange="recalculateCurvesAndPlot()">
-            <div class="rangeInfo" id="smoothenDaysInfo">Unset</div>
-          </div>
-        </div>
-
       </div>
+
+      <div id="curvevariants">
+        Variants:
+
+        <li>
+          <input id="checkboxShowRaw" type="checkbox" onchange="recalculateCurvesAndPlot()">
+          <label for="checkboxShowRaw">Show Raw Curves</label>
+        </li>
+
+        <li>
+          <input id="checkboxShowSmoothened" type="checkbox" checked onchange="recalculateCurvesAndPlot()">
+          <label for="checkboxShowSmoothened">Show Smothened Curves</label>
+        </li>
+
+        <!--not implemented yet
+        <li>
+          <input id="checkboxNormalize" type="checkbox" onchange="recalculateCurvesAndPlot()">
+          <label for="checkboxNormalize">Per-Captia Curves</label>
+        </li>
+        -->
+      </div>
+
+
+      <div id="countrylistbox">
+        Countries:
+        <div id="countrylist">
+          unset
+        </div>
+      </div>
+
+      <div id="rparameters">
+        R-Estimator Parameters:
+
+        <div class="rangewrap">
+          <label for="infectivityDays">Average Infectious Days:<!-- TODO: explainer --></label>
+          <div class="rangeInfo" id="infectivityDaysInfo">Unset</div>
+          <input type="range" min="5" max="40" value="11" class="range" id="infectivityDays" oninput="updateControlInfos()"  onchange="recalculateCurvesAndPlot()" />
+        </div>
+
+        <div>
+          <label for="peakDayActive">Peak Infectiousness Day: <!-- TODO: explainer --></label>
+          <div class="rangeInfo" id="peakDayActiveInfo">Unset</div>
+          <input type="range" min="3" max="40" value="5" class="range" id="peakDayActive" oninput="updateControlInfos()"  onchange="recalculateCurvesAndPlot()" />
+        </div>
+
+        <div>
+          <label for="firstDayActive">First Infectious Day: <!-- TODO: explainer --></label>
+          <div class="rangeInfo" id="firstDayActiveInfo">Unset</div>
+          <input type="range" min="-10" max="0" value="-3" class="range" id="firstDayActive" oninput="updateControlInfos()"  onchange="recalculateCurvesAndPlot()">
+        </div>
+
+        <!-- TODO: plot of the resulting binomial distribution -->
+      </div>
+
+      <div id="smoothenparameters">
+        Smoother Parameters:
+        <div>
+          <label for="smoothenDays">Period [Days]:<!-- TODO: explainer --></label>
+          <input type="range" min="3" max="40" value="8" class="range" id="smoothenDays" oninput="updateControlInfos()"  onchange="recalculateCurvesAndPlot()">
+          <div class="rangeInfo" id="smoothenDaysInfo">Unset</div>
+        </div>
+      </div>
+
     </div>
   </body>
 </html>
