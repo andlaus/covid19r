@@ -81,10 +81,84 @@ function recalculateCurvesAndPlot()
     updatePlot();
 }
 
+function nChosek(n, k)
+{
+    var k = Math.min(k, n-k)
+
+    var numer = 1.0;
+    for (var i = n; i > n-k; i--)
+        numer *= i;
+
+    var denom = 1.0;
+    for (var i = 1; i < k+1; i++)
+        denom *= i;
+
+    return numer / denom;
+}
+
+var infectivityOffset = -3;
+var infectivityWeights = [];
+
+function updateInfectivityWeights()
+{
+    infectivityWeights = [];
+
+    // TODO: get parameters from the controls
+    var numDaysInfectious = 10;
+    var weightsOffset = -3;
+    var k = 7;
+
+    var s = 0.0;
+    for (var i = 1; i < numDaysInfectious + 1; i ++) {
+        var p = i / (numDaysInfectious + 1);
+
+        var y = nChosek(numDaysInfectious + 1, k)
+                * Math.pow(p, k)
+                * Math.pow(1 - p, numDaysInfectious + 1 - k);
+
+        s += y;
+        infectivityWeights.push(y);
+    }
+
+    // normalize the weight array. this might not be necessary, but
+    // I'm a statistics n00b and better safe than sorry...
+    for (var i = 1; i < infectivityWeights.length; i ++)
+        infectivityWeights[i] /= s;
+}
+
 function estimateR(countryName)
 {
-    // TODO: actual stuff
-    return inputData[countryName].newCases;
+    countryData = inputData[countryName];
+
+    // creating an array of a given length full of zeros in JavaScript
+    // is -- um -- interesting...
+    var result = [];
+    for (var i = 0; i < countryData.dates.length; i++)
+        result.push(0.0);
+
+    for (var i = 0; i < result.length; i++) {
+        // distribute the cases of day i according to the infectivity data
+        for (var j = 0; j < infectivityWeights.length; j++) {
+            var dayIdx = i + infectivityOffset + j
+
+            if (dayIdx < 0)
+                continue
+            else if (dayIdx >= result.length)
+                continue
+
+            result[dayIdx] += countryData.newCases[i] * infectivityWeights[j];
+        }
+    }
+
+    // compute the estimated R factor by dividing the actually seen
+    // cases of a day by the attributable weight (currently in the
+    // result array)
+    for (var i = 0; i < result.length; i++) {
+        w = result[i];
+        result[i] = countryData.newCases[i] / Math.max(1e-2, w);
+    }
+
+    return result;
 }
 
 function diamondPrincessEstimate(countryName)
@@ -114,6 +188,8 @@ function normalizeData(countryName, d)
 
 function recalculateCurves()
 {
+    updateInfectivityWeights();
+    
     curveType = document.getElementById("curveType").value;
 
     var normalize = false; //document.getElementById("checkboxNormalize").checked;
