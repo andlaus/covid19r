@@ -33,7 +33,7 @@
 
       <div id="curveselect">
         Curve:
-        <select id="curve">
+        <select id="curveType" onchange="recalculateCurvesAndPlot()">
           <option value="R">Estimated R</option>
           <option value="C">Total Reported Cases</option>
           <option value="c">New Reported Cases</option>
@@ -47,20 +47,20 @@
           Variants:
 
           <li>
-            <input id="checkboxNormalize" type="checkbox" onchange="recalculateCurvesAndPlot()">
-            <label for="checkboxNormalize">Show Raw Curves</label>
+            <input id="checkboxShowRaw" type="checkbox" onchange="recalculateCurvesAndPlot()">
+            <label for="checkboxShowRaw">Show Raw Curves</label>
           </li>
 
           <li>
-            <input id="checkboxSmoothen" type="checkbox" checked onchange="recalculateCurvesAndPlot()">
-            <label for="checkboxSmoothen">Show Smothened Curves</label>
+            <input id="checkboxShowSmoothened" type="checkbox" checked onchange="recalculateCurvesAndPlot()">
+            <label for="checkboxShowSmoothened">Show Smothened Curves</label>
           </li>
 
           <!--not implemented yet
               
           <li>
             <input id="checkboxNormalize" type="checkbox" onchange="recalculateCurvesAndPlot()">
-            <label for="checkboxNormalize">Use Captia Results</label>
+            <label for="checkboxNormalize">Per-Captia Curves</label>
           </li>
           -->
         </div>

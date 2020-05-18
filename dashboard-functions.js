@@ -81,23 +81,92 @@ function recalculateCurvesAndPlot()
     updatePlot();
 }
 
+function smoothenData(d)
+{
+    // TODO: box filter
+    return d;
+}
+
+function normalizeData(countryName, d)
+{
+    // TODO: divide all array elementsby the number of captia of the
+    // country
+    return d;
+}
+
 function recalculateCurves()
 {
-    console.log("recalculateCurves()");
+    curveType = document.getElementById("curveType").value;
 
+    var normalize = false; //document.getElementById("checkboxNormalize").checked;
+
+    var showRaw = document.getElementById("checkboxShowRaw").checked;
+    var showSmoothened = document.getElementById("checkboxShowSmoothened").checked;
+    
     // update data fed to the plotly widget
     plotlyCountryData = {}
     for (var countryName in inputData) {
         countryPlotlyData = []
 
-        // TODO: add the actual curves not just the total cases
-        countryPlotlyData.push({
-            x: inputData[countryName].dates,
-            y: inputData[countryName].totalCases,
+        var dr = null;
+        var ds = null;
+        var drCaption = countryName;
+        var dsCaption = countryName;
 
-            mode: 'lines',
-            name: countryName + ", Total Cases",
-        });
+        console.log("curveType: "+curveType);
+
+        if (curveType == "C"){
+            dr = inputData[countryName].totalCases;
+            ds = smoothenData(dr);
+
+            drCaption += ", Total Cases";
+            dsCaption += ", Smoothened Total Cases";
+
+            if (normalize) {
+                dr = normalizeData(countryName, dr);
+                ds = normalizeData(countryName, ds);
+
+                drCaption += " per Captia";
+                dsCaption += " per Captia";
+            }
+        }
+        else if (curveType == "c"){
+            dr = inputData[countryName].newCases;
+            ds = smoothenData(dr);
+
+            drCaption += ", New Cases";
+            dsCaption += ", Smoothened New Cases";
+
+            if (normalize) {
+                dr = normalizeData(countryName, dr);
+                ds = normalizeData(countryName, ds);
+
+                drCaption += " per Captia";
+                dsCaption += " per Captia";
+            }
+        }
+        // TODO: add remaining types of curves
+
+        if (showRaw) {
+            countryPlotlyData.push({
+                x: inputData[countryName].dates,
+                y: dr,
+
+                mode: 'lines',
+                name: drCaption,
+            });
+        }
+        if (showSmoothened) {
+            console.log("hallo smoothend: "+ds);
+
+            countryPlotlyData.push({
+                x: inputData[countryName].dates,
+                y: ds,
+
+                mode: 'lines',
+                name: dsCaption,
+            });
+        }
 
         plotlyCountryData[countryName] = countryPlotlyData;
     }
