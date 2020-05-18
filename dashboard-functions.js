@@ -184,7 +184,7 @@ function diamondPrincessEstimateRatio(countryName)
 function smoothenData(d)
 {
     // todo: get parameters from control elements
-    var n = 8;
+    var n = 7;
 
     var result = [];
 
