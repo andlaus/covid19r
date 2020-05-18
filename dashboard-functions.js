@@ -139,12 +139,12 @@ function estimateR(countryName)
     for (var i = 0; i < result.length; i++) {
         // distribute the cases of day i according to the infectivity data
         for (var j = 0; j < infectivityWeights.length; j++) {
-            var dayIdx = i + infectivityOffset + j
+            var dayIdx = i + infectivityOffset + j;
 
             if (dayIdx < 0)
-                continue
+                continue;
             else if (dayIdx >= result.length)
-                continue
+                continue;
 
             result[dayIdx] += countryData.newCases[i] * infectivityWeights[j];
         }
@@ -191,17 +191,19 @@ function smoothenData(d)
     // backward box filter
     for (var i = 0; i < d.length; i ++) {
         var numValues = 0;
-        var sum = 0.0;
+        var s = 0.0;
+
         for (var j = 0; j < n; j ++) {
-            var k = i - j + 1;
+            var k = i - j;
             if (k < 0)
                 continue;
 
-            sum += d[k];
+            s += d[k];
             numValues += 1;
         }
 
-        result.push(sum/numValues);
+        console.log(s+"/"+numValues);
+        result.push(s/numValues);
     }
     
     return result;
@@ -394,22 +396,22 @@ function addCountry(country)
                                let colIdxTotalDeaths = 3;
                                let colIdxNewDeaths = 4;
 
-                               for (let i = 1; i < results.data.length; i++) {
+                               for (let i = 1; i < results.data.length - 1; i++) {
                                    xPoints.push(results.data[i][0]);
 
-                                   yPointsTotalCases.push(results.data[i][colIdxTotalCases]);
-                                   yPointsNewCases.push(results.data[i][colIdxNewCases]);
-                                   yPointsTotalDeaths.push(results.data[i][colIdxTotalDeaths]);
-                                   yPointsNewDeaths.push(results.data[i][colIdxNewDeaths]);
+                                   yPointsTotalCases.push(parseFloat(results.data[i][colIdxTotalCases]));
+                                   yPointsNewCases.push(parseFloat(results.data[i][colIdxNewCases]));
+                                   yPointsTotalDeaths.push(parseFloat(results.data[i][colIdxTotalDeaths]));
+                                   yPointsNewDeaths.push(parseFloat(results.data[i][colIdxNewDeaths]));
                                }
 
                                var cd = {
-                                   dates: xPoints.slice(0, xPoints.length-1),
+                                   dates: xPoints,
 
-                                   totalCases: yPointsTotalCases.slice(0, xPoints.length-1),
-                                   newCases: yPointsNewCases.slice(0, xPoints.length-1),
-                                   totalDeaths: yPointsTotalDeaths.slice(0, xPoints.length-1),
-                                   newDeaths: yPointsNewDeaths.slice(0, xPoints.length-1),
+                                   totalCases: yPointsTotalCases,
+                                   newCases: yPointsNewCases,
+                                   totalDeaths: yPointsTotalDeaths,
+                                   newDeaths: yPointsNewDeaths,
                                };
 
                                inputData[country] = cd;
