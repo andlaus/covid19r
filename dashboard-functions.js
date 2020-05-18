@@ -156,7 +156,14 @@ function estimateR(countryName)
     for (var i = 0; i < result.length; i++) {
         w = result[i];
 
-        if (!w) {
+        if (w < 10.0) {
+            // do not calculate R factors for dates where we have too
+            // few infectious cases: It does not make sense.
+            result[i] = null;
+        }
+        else if (!w) {
+            // we do not have enough past cases to calculate an R
+            // factor for this day.
             if (countryData.newCases[i] > 0)
                 result[i] = 3.0;
             else
@@ -198,12 +205,17 @@ function smoothenData(d)
             if (k < 0)
                 continue;
 
+            if (d[k] == null)
+                continue;
+
             s += d[k];
             numValues += 1;
         }
 
-        console.log(s+"/"+numValues);
-        result.push(s/numValues);
+        if (numValues > 0)
+            result.push(s/numValues);
+        else
+            result.push(null);
     }
     
     return result;
