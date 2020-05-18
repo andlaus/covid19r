@@ -155,7 +155,15 @@ function estimateR(countryName)
     // result array)
     for (var i = 0; i < result.length; i++) {
         w = result[i];
-        result[i] = countryData.newCases[i] / Math.max(1e-2, w);
+
+        if (!w) {
+            if (countryData.newCases[i] > 0)
+                result[i] = 3.0;
+            else
+                result[i] = 0.0;
+        }
+        else
+            result[i] = countryData.newCases[i] / w;
     }
 
     return result;
@@ -175,8 +183,28 @@ function diamondPrincessEstimateRatio(countryName)
 
 function smoothenData(d)
 {
-    // TODO: box filter
-    return d;
+    // todo: get parameters from control elements
+    var n = 8;
+
+    var result = [];
+
+    // backward box filter
+    for (var i = 0; i < d.length; i ++) {
+        var numValues = 0;
+        var sum = 0.0;
+        for (var j = 0; j < n; j ++) {
+            var k = i - j + 1;
+            if (k < 0)
+                continue;
+
+            sum += d[k];
+            numValues += 1;
+        }
+
+        result.push(sum/numValues);
+    }
+    
+    return result;
 }
 
 function normalizeData(countryName, d)
@@ -376,12 +404,12 @@ function addCountry(country)
                                }
 
                                var cd = {
-                                   dates: xPoints,
+                                   dates: xPoints.slice(0, xPoints.length-1),
 
-                                   totalCases: yPointsTotalCases,
-                                   newCases: yPointsNewCases,
-                                   totalDeaths: yPointsTotalDeaths,
-                                   newDeaths: yPointsNewDeaths,
+                                   totalCases: yPointsTotalCases.slice(0, xPoints.length-1),
+                                   newCases: yPointsNewCases.slice(0, xPoints.length-1),
+                                   totalDeaths: yPointsTotalDeaths.slice(0, xPoints.length-1),
+                                   newDeaths: yPointsNewDeaths.slice(0, xPoints.length-1),
                                };
 
                                inputData[country] = cd;
@@ -435,8 +463,8 @@ function initPlot()
         document.getElementById("countrylist").innerHTML = countriesHtml;
 
         addCountry("Germany");
-        addCountry("Italy");
-        addCountry("US");
+        //addCountry("Italy");
+        //addCountry("US");
 
         updateControlInfos();
         updatePlot();
