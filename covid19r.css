@@ -20,6 +20,29 @@
     overflow: scroll;
     height: 400px;
     margin-top: 10px;
+    margin-bottom: 20px;
+}
+
+#curveselect, #rparameters, #smoothenparameters {
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+
+#curveselect > select {
+    margin-top: 10px;
+}
+
+#curve {
+    width: 100%;
+}
+
+#options {
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+
+#curvevariants > li {
+    list-style-type: none;
 }
 
 #logocontainer {
@@ -30,4 +53,19 @@
 
 #powarelogo {
     width: 200px;
+}
+
+.rangewrap {
+    
+}
+
+.range {
+    display: inline;
+    width: 40%;
+    vertical-align: middle;
+}
+
+.rangeInfo {
+    width: 3ex;
+    display: inline-block;
 }
