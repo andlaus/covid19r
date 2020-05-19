@@ -50,6 +50,40 @@ function updatePlot()
     Plotly.newPlot(/*domElementId=*/'mainplot', plotlyData, layout, {modeBarButtonsToRemove: ["toggleSpikelines", "resetScale2d"]});
 }
 
+function updateInfectivityPlot()
+{
+    // resize the DOM element to its proper height
+    var weightsPlotElem = document.getElementById("infectivityplot");
+    var widthPx = weightsPlotElem.getBoundingClientRect().width
+
+    weightsPlotElem.style.height = (widthPx/2) + "px";
+
+    var numDaysInfectious = parseFloat(document.getElementById("infectivityDays").value);
+    var weightsOffset = parseFloat(document.getElementById("firstDayActive").value);
+
+    var xAxis = [];
+    var yAxis = [];
+    for (var i = 0; i < numDaysInfectious; i++) {
+        xAxis.push(i + weightsOffset);
+        yAxis.push(infectivityWeights[i]);
+    }
+
+    var plotlyData = [];
+    plotlyData.push({
+        x: xAxis,
+        y: yAxis,
+
+        type: "bar",
+    });
+    
+    var layout = {
+        xaxis: { rangemode: 'tozero' },
+        yaxis: { rangemode: 'tozero' },
+    };
+    
+    Plotly.newPlot(/*domElementId=*/'infectivityplot', plotlyData, layout, {displayModeBar: false});
+}
+
 // update the parameter slider info elements and the visualization of the binomial distribution
 function updateControlInfos()
 {
@@ -67,6 +101,9 @@ function updateControlInfos()
 
         sliderInfo.innerHTML = slider.value;
     }
+
+    updateInfectivityWeights();
+    updateInfectivityPlot();
 }
 
 // recalculate the data of all curved and update the ploted curves as
