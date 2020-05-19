@@ -37,6 +37,16 @@ function readCountryList(onComplete = null)
 
 function updatePlot()
 {
+    var domElem = document.getElementById("mainplot");
+
+    // store old x and y range
+    oldXRange = null;
+    oldYRange = null;
+    if (domElem.layout) {
+        oldXRange = domElem.layout.xaxis.range;
+        oldYRange = domElem.layout.yaxis.range;
+    }
+        
     var plotlyData = [];
 
     for (var c in plotlyCountryData) {
@@ -44,7 +54,15 @@ function updatePlot()
     }
 
     var layout = {
-        yaxis: { rangemode: 'tozero' }
+        xaxis: {
+            rangemode: 'tozero',
+            range: oldXRange,
+        },
+
+        yaxis: {
+            rangemode: 'tozero',
+            range: oldYRange,
+        },
     };
     
     Plotly.newPlot(/*domElementId=*/'mainplot', plotlyData, layout, {modeBarButtonsToRemove: ["toggleSpikelines", "resetScale2d"]});
