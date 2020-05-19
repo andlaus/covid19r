@@ -256,16 +256,16 @@ function recalculateCurves()
     ];
 
     var colorListRaw = [
-        '#6fd7ff',  // muted blue
-        '#ffdf6e',  // safety orange
-        '#8cff8c',  // cooked asparagus green
-        '#ff8788',  // brick red
-        '#ffc7ff',  // muted purple
-        '#ecb6ab',  // chestnut brown
-        '#ffe7ff',  // raspberry yogurt pink
-        '#efefef',  // middle gray
-        '#ffff82',  // curry yellow-green
-        '#77ffff'   // blue-teal
+        '#1f77b444',  // muted blue
+        '#ff7f0e44',  // safety orange
+        '#2ca02c44',  // cooked asparagus green
+        '#d6272844',  // brick red
+        '#9467bd44',  // muted purple
+        '#8c564b44',  // chestnut brown
+        '#e377c244',  // raspberry yogurt pink
+        '#7f7f7f44',  // middle gray
+        '#bcbd2244',  // curry yellow-green
+        '#17becf44'   // blue-teal
     ];
 
     curveType = document.getElementById("curveType").value;
