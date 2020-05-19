@@ -197,6 +197,8 @@ for fileName in filesList:
             if fields[8] != "":
                 numDeaths = int(fields[8])
 
+        countryLine = countryLine.replace("US", "United States of America")
+
         if countryLine != country:
             continue
 
