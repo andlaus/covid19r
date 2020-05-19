@@ -103,10 +103,9 @@ function updateInfectivityWeights()
 {
     infectivityWeights = [];
 
-    // TODO: get parameters from the controls
-    var numDaysInfectious = 10;
-    var weightsOffset = -3;
-    var k = 7;
+    var numDaysInfectious = parseFloat(document.getElementById("infectivityDays").value);
+    var weightsOffset = parseFloat(document.getElementById("firstDayActive").value);
+    var k = parseFloat(document.getElementById("peakDayActive").value);
 
     var s = 0.0;
     for (var i = 1; i < numDaysInfectious + 1; i ++) {
@@ -190,8 +189,7 @@ function diamondPrincessEstimateRatio(countryName)
 
 function smoothenData(d)
 {
-    // todo: get parameters from control elements
-    var n = 7;
+    var n = parseFloat(document.getElementById("smoothenDays").value);
 
     var result = [];
 
