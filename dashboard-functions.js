@@ -47,7 +47,10 @@ function updatePlot()
         yaxis: { rangemode: 'tozero' }
     };
     
-    Plotly.newPlot(/*domElementId=*/'mainplot', plotlyData, layout, {modeBarButtonsToRemove: ["toggleSpikelines", "resetScale2d"]});
+    Plotly.newPlot(/*domElementId=*/'mainplot', plotlyData, layout, {
+        modeBarButtonsToRemove: ["toggleSpikelines", "resetScale2d"],
+        responsive: true
+    });
 }
 
 function updateInfectivityPlot()
