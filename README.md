@@ -37,3 +37,9 @@ provided:
 COUNTRY="Germany"
 ./estimateAndVisualizeR.sh "$COUNTRY"
 ```
+
+## Usage in the Web
+
+```terminal
+./extractAllCountries.sh
+```
