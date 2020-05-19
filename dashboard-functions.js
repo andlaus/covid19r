@@ -588,8 +588,8 @@ function initPlot()
         document.getElementById("countrylist").innerHTML = countriesHtml;
 
         addCountry("Germany");
-        //addCountry("Italy");
-        //addCountry("US");
+        addCountry("Italy");
+        addCountry("United States of America");
 
         updateControlInfos();
         updatePlot();
