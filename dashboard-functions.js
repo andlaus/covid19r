@@ -228,10 +228,46 @@ function normalizeData(countryName, d)
     return d;
 }
 
+function getGlobalCountryIndex(countryName)
+{
+    for (var i = 0; i < countryNames.length; i++)  {
+        if (countryNames[i] == countryName)
+            return i;
+    }
+    
+    return countryNames.length;
+}
+
 function recalculateCurves()
 {
     updateInfectivityWeights();
-    
+
+    var colorListSmoothened = [
+        '#1f77b4',  // muted blue
+        '#ff7f0e',  // safety orange
+        '#2ca02c',  // cooked asparagus green
+        '#d62728',  // brick red
+        '#9467bd',  // muted purple
+        '#8c564b',  // chestnut brown
+        '#e377c2',  // raspberry yogurt pink
+        '#7f7f7f',  // middle gray
+        '#bcbd22',  // curry yellow-green
+        '#17becf'   // blue-teal
+    ];
+
+    var colorListRaw = [
+        '#6fd7ff',  // muted blue
+        '#ffdf6e',  // safety orange
+        '#8cff8c',  // cooked asparagus green
+        '#ff8788',  // brick red
+        '#ffc7ff',  // muted purple
+        '#ecb6ab',  // chestnut brown
+        '#ffe7ff',  // raspberry yogurt pink
+        '#efefef',  // middle gray
+        '#ffff82',  // curry yellow-green
+        '#77ffff'   // blue-teal
+    ];
+
     curveType = document.getElementById("curveType").value;
 
     var normalize = false; //document.getElementById("checkboxNormalize").checked;
@@ -243,6 +279,8 @@ function recalculateCurves()
     plotlyCountryData = {}
     for (var countryName in inputData) {
         countryPlotlyData = []
+
+        var countryIdx = getGlobalCountryIndex(countryName);
 
         var dates = inputData[countryName].dates;
         var dr = null;
@@ -358,6 +396,9 @@ function recalculateCurves()
                 y: dr,
 
                 mode: 'lines',
+                line: {
+                    color: colorListRaw[countryIdx%colorListRaw.length],
+                },
                 name: drCaption,
             });
         }
@@ -367,6 +408,9 @@ function recalculateCurves()
                 y: ds,
 
                 mode: 'lines',
+                line: {
+                    color: colorListSmoothened[countryIdx%colorListSmoothened.length],
+                },
                 name: dsCaption,
             });
         }
