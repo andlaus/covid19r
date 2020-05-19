@@ -35,16 +35,24 @@ function readCountryList(onComplete = null)
     clRawFile.send(null);
 }
 
-function updatePlot()
+function updatePlot(autoscale = false)
 {
     var domElem = document.getElementById("mainplot");
 
+    var layout = {
+        xaxis: {
+            rangemode: 'tozero',
+        },
+
+        yaxis: {
+            rangemode: 'tozero',
+        },
+    };
+
     // store old x and y range
-    oldXRange = null;
-    oldYRange = null;
-    if (domElem.layout) {
-        oldXRange = domElem.layout.xaxis.range;
-        oldYRange = domElem.layout.yaxis.range;
+    if (!autoscale && domElem.layout) {
+        layout.xaxis.range = domElem.layout.xaxis.range;
+        layout.yaxis.range = domElem.layout.yaxis.range;
     }
         
     var plotlyData = [];
@@ -52,18 +60,6 @@ function updatePlot()
     for (var c in plotlyCountryData) {
         plotlyData.push(...plotlyCountryData[c]);
     }
-
-    var layout = {
-        xaxis: {
-            rangemode: 'tozero',
-            range: oldXRange,
-        },
-
-        yaxis: {
-            rangemode: 'tozero',
-            range: oldYRange,
-        },
-    };
     
     Plotly.newPlot(/*domElementId=*/'mainplot', plotlyData, layout, {modeBarButtonsToRemove: ["toggleSpikelines", "resetScale2d"]});
 }
@@ -140,14 +136,14 @@ function updateControlInfos()
 
 // recalculate the data of all curved and update the ploted curves as
 // well as the control elements.
-function recalculateCurvesAndPlot()
+function recalculateCurvesAndPlot(autoscale = false)
 {
     // play it safe and update the info labels for of the controls
     updateControlInfos();
 
     recalculateCurves();
 
-    updatePlot();
+    updatePlot(autoscale);
 }
 
 function nChosek(n, k)
