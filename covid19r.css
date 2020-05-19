@@ -2,11 +2,14 @@ body {
     overflow-y: scroll;
 }
 
+.wrapper {
+    display: flex;
+    width: 100%;
+    align-items: stretch;
+}
+
 #plotcontainer {
-    width: 79%;
-    max-width: calc(100% - 210px);
-    height: calc(100vh - 100px);
-    float: left;
+    background-color: rebeccapurple;
 }
 
 #mainplot {
@@ -19,9 +22,17 @@ body {
 }
 
 #sidebar {
-    width: 20%;
-    min-width: 200px;
-    float: right;
+    background-color: deepskyblue;
+    width: 250px;
+    margin: 30px;
+}
+
+#sidebarsmall {
+    margin-top: 1px;
+    margin-right: 2px;
+    position: absolute;
+    top: 0;
+    right: 0;
 }
 
 #countrylist {
@@ -61,7 +72,7 @@ body {
 }
 
 .rangewrap {
-    
+
 }
 
 .range {
