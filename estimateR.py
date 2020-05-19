@@ -80,13 +80,13 @@ def nChosek(n, k):
 # of a given day over the past and the future. be aware that this is
 # basically handwaveing and I have no data whatsoever to back it
 # up. IMO the curves look plausible, though.
-numDaysInfectious = 10 # number of days a case has an effect on the
+numDaysInfectious = 16 # number of days a case has an effect on the
                        # number of reported cases
-weightsOffset = -4 # first day a case has an influence on the reported
+weightsOffset = -10 # first day a case has an influence on the reported
                    # numbers [days after an infection is reported]
-k = 7 # specify the "center of infectiousness" of new cases w.r.t. the
-      # report date. we set this slightly to the future, i.e., larger
-      # than the negative weightsOffset [range: [0, 10]]
+k = 12 # specify the "center of infectiousness" of new cases w.r.t. the
+       # report date. we set this slightly to the future, i.e., larger
+       # than the negative weightsOffset [range: [0, 10]]
 
 weightsList = []
 sumWeights = 0.0

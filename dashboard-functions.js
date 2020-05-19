@@ -59,12 +59,11 @@ function updateInfectivityPlot()
     weightsPlotElem.style.height = (widthPx/2) + "px";
 
     var numDaysInfectious = parseFloat(document.getElementById("infectivityDays").value);
-    var weightsOffset = parseFloat(document.getElementById("firstDayActive").value);
 
     var xAxis = [];
     var yAxis = [];
     for (var i = 0; i < numDaysInfectious; i++) {
-        xAxis.push(i + weightsOffset);
+        xAxis.push(i + infectivityOffset);
         yAxis.push(infectivityWeights[i]);
     }
 
@@ -142,7 +141,7 @@ function updateInfectivityWeights()
     infectivityWeights = [];
 
     var numDaysInfectious = parseFloat(document.getElementById("infectivityDays").value);
-    var weightsOffset = parseFloat(document.getElementById("firstDayActive").value);
+    infectivityOffset = parseFloat(document.getElementById("firstDayActive").value);
     var k = parseFloat(document.getElementById("peakDayActive").value);
 
     var s = 0.0;
