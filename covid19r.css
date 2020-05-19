@@ -67,6 +67,11 @@ body {
     text-align: center;
 }
 
+.powarelogosmall {
+    width: 66px;
+    margin-top: 10px;
+}
+
 #powarelogo {
     width: 200px;
 }

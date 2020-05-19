@@ -563,3 +563,24 @@ function initPlot()
         updatePlot();
     });
 }
+
+function toggleSidebar() {
+    var sideBar = $("#sidebar");
+    if (sideBar.is(":visible")) {
+        console.log("hide");
+        sideBar.addClass("d-none");
+        sideBar.removeClass("d-block");
+        sideBar.removeClass("d-xl-none");
+        $("#mainplot").removeClass("d-none");
+        $("#sidebarsmall").addClass("d-xl-none");
+        $(".powarelogosmall").removeClass("d-none");
+    } else {
+        console.log("show");
+        sideBar.removeClass("d-none");
+        sideBar.addClass("d-block");
+        sideBar.addClass("d-xl-none");
+        $("#mainplot").addClass("d-none");
+        $("#sidebarsmall").removeClass("d-xl-none");
+        $(".powarelogosmall").addClass("d-none");
+    }
+}
