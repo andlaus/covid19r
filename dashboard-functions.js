@@ -512,10 +512,10 @@ function initPlot()
             var country = countryNames[countryIdx];
             if (country == "")
                 continue;
-            countriesHtml += "<li>\n";
+            countriesHtml += "<div>\n";
             countriesHtml += "<input id=\"checkbox"+country+"\" type=\"checkbox\" value=\""+country+"\" onchange=\"clickedOnCountry('"+country+"')\" />\n";
             countriesHtml += "<label for=\"checkbox"+country+"\">"+country+"</label>\n";
-            countriesHtml += "</li>\n";
+            countriesHtml += "</div>\n";
         }
 
         document.getElementById("countrylist").innerHTML = countriesHtml;

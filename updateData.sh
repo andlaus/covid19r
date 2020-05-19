@@ -5,8 +5,7 @@ if test -d "COVID-19"; then
     cd COVID-19
     git pull
 else
-    git clone https://github.com/CSSEGISandData/COVID-19
+    git clone --depth=1 https://github.com/CSSEGISandData/COVID-19
 fi
 
 popd > /dev/null
-    
