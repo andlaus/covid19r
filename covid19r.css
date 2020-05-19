@@ -1,3 +1,7 @@
+body {
+    overflow-y: scroll;
+}
+
 #plotcontainer {
     width: 79%;
     max-width: calc(100% - 210px);
