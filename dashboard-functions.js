@@ -76,9 +76,23 @@ function updateInfectivityPlot()
     });
     
     var layout = {
-        title: "Infectivity vs Time",
-        xaxis: { rangemode: 'tozero' },
-        yaxis: { rangemode: 'tozero' },
+        xaxis: {
+            title: "Days after Report",
+            rangemode: 'tozero'
+        },
+        yaxis: {
+            title: "Infectivity",
+            rangemode: 'tozero',
+            showticklabels: false,
+        },
+
+        margin: {
+            l: 10,
+            r: 10,
+            t: 20,
+            b: 40,
+            pad: 0,
+        },
     };
     
     Plotly.newPlot(/*domElementId=*/'infectivityplot', plotlyData, layout, {displayModeBar: false});
