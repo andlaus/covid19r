@@ -74,19 +74,19 @@
         <div class="rangewrap">
           <label for="infectivityDays">Average Infectious Days:<!-- TODO: explainer --></label>
           <div class="rangeInfo" id="infectivityDaysInfo">Unset</div>
-          <input type="range" min="5" max="40" value="11" class="range" id="infectivityDays" oninput="updateControlInfos()"  onchange="recalculateCurvesAndPlot()" />
+          <input type="range" min="5" max="40" value="14" class="range" id="infectivityDays" oninput="updateControlInfos()"  onchange="recalculateCurvesAndPlot()" />
         </div>
 
         <div>
           <label for="peakDayActive">Peak Infectiousness Day: <!-- TODO: explainer --></label>
           <div class="rangeInfo" id="peakDayActiveInfo">Unset</div>
-          <input type="range" min="3" max="40" value="5" class="range" id="peakDayActive" oninput="updateControlInfos()"  onchange="recalculateCurvesAndPlot()" />
+          <input type="range" min="3" max="40" value="11" class="range" id="peakDayActive" oninput="updateControlInfos()"  onchange="recalculateCurvesAndPlot()" />
         </div>
 
         <div>
           <label for="firstDayActive">First Infectious Day: <!-- TODO: explainer --></label>
           <div class="rangeInfo" id="firstDayActiveInfo">Unset</div>
-          <input type="range" min="-10" max="0" value="-4" class="range" id="firstDayActive" oninput="updateControlInfos()"  onchange="recalculateCurvesAndPlot()">
+          <input type="range" min="-10" max="0" value="-9" class="range" id="firstDayActive" oninput="updateControlInfos()"  onchange="recalculateCurvesAndPlot()">
         </div>
 
         <div id="infectivityplot"></div>

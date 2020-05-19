@@ -77,6 +77,7 @@ function updateInfectivityPlot()
     });
     
     var layout = {
+        title: "Infectivity vs Time",
         xaxis: { rangemode: 'tozero' },
         yaxis: { rangemode: 'tozero' },
     };
