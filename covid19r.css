@@ -1,5 +1,6 @@
 body {
-    overflow-y: scroll;
+    overflow: hidden;
+    background-color: #fff;
 }
 
 #plotcontainer {
@@ -20,13 +21,16 @@ body {
 
 #sidebar {
     width: 20%;
+    height: 100vh;
     min-width: 200px;
     float: right;
+    overflow: scroll;
+    padding-left: 10px;
 }
 
 #countrylist {
     overflow: scroll;
-    height: 400px;
+    height: 300px;
     margin-top: 10px;
     margin-bottom: 20px;
 }

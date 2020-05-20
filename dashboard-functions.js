@@ -9,6 +9,11 @@ var countryNames = [];
 // data fed to plotly.js for visualization
 var plotlyCountryData = {};
 
+// ranges for the last autorange operations. Used to decide when to do
+// auto range and when not.
+var autoRangeX = null;
+var autoRangeY = null;
+
 function readCountryList(onComplete = null)
 {
     var clRawFile = new XMLHttpRequest();
@@ -35,6 +40,19 @@ function readCountryList(onComplete = null)
     clRawFile.send(null);
 }
 
+function arrayEqual(a, b)
+{
+    if (a.length != b.length)
+        return false;
+
+    for (var i = 0; i < a.length; i++) {
+        if (a[i] != b[i])
+            return false;
+    }
+
+    return true;
+}
+
 function updatePlot(autoscale = false)
 {
     var domElem = document.getElementById("mainplot");
@@ -49,8 +67,20 @@ function updatePlot(autoscale = false)
         },
     };
 
+    if (!domElem.layout)
+        // for the first plotting operation, we always use autoscale
+        autoscale = true;
+
+    if (!autoscale &&
+        arrayEqual(autoRangeX, domElem.layout.xaxis.range) &&
+        arrayEqual(autoRangeY, domElem.layout.yaxis.range)) {
+        // we are not in forced autoscale mode but the axis have not
+        // been changed manually, so we autoscale them
+        autoscale = true;
+    }
+
     // store old x and y range
-    if (!autoscale && domElem.layout) {
+    if (!autoscale) {
         layout.xaxis.range = domElem.layout.xaxis.range;
         layout.yaxis.range = domElem.layout.yaxis.range;
     }
@@ -62,6 +92,14 @@ function updatePlot(autoscale = false)
     }
     
     Plotly.newPlot(/*domElementId=*/'mainplot', plotlyData, layout, {modeBarButtonsToRemove: ["toggleSpikelines", "resetScale2d"]});
+
+    domElem = document.getElementById("mainplot");
+    if (autoscale) {
+        // remember the current range. we want to copy the arrays, not
+        // just store a reference, so we have to call slice()
+        autoRangeX = domElem.layout.xaxis.range.slice();
+        autoRangeY = domElem.layout.yaxis.range.slice();
+    }
 }
 
 function updateInfectivityPlot()
@@ -584,7 +622,7 @@ function initPlot()
         document.getElementById("countrylist").innerHTML = countriesHtml;
 
         addCountry("Germany");
-        addCountry("Italy");
+        //addCountry("Italy");
         addCountry("United States of America");
 
         updateControlInfos();
