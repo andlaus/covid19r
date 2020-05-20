@@ -278,14 +278,50 @@ function estimateR(countryName)
 
 function diamondPrincessEstimate(countryName)
 {
-    // TODO: actual stuff
-    return inputData[countryName].newCases;
+    countryData = inputData[countryName];
+
+    var result = [];
+
+    // We define the "Diamond Pricess Estimate" for a given day as the
+    // number of reported deaths in 14 days divided by the lethality
+    // on the Diamond Princess cruise ship. (i.e., 13/712 = 1.83%) The
+    // assumption is that new cases are reported 7 days after
+    // infection and if they end deadly, death will occur 21 days
+    // after infection.
+    for (var i = 13; i < inputData[countryName].totalDeaths.length; i++) {
+        if (countryData.totalDeaths[i])
+            result.push(countryData.totalDeaths[i] / (13./712));
+        else
+            result.push(null);
+    }
+
+    for (var i = Math.max(0, inputData[countryName].totalDeaths.length - 14);
+         i < inputData[countryName].totalDeaths.length;
+         i++) {
+        result.push(null);
+    }
+
+    return result;
 }
 
 function diamondPrincessEstimateRatio(countryName)
 {
-    // TODO: actual stuff
-    return inputData[countryName].totalCases;
+    var countryData = inputData[countryName];
+    var dpe = diamondPrincessEstimate(countryName);
+    var result = [];
+    
+    for (var i = 0; i < countryData.totalCases.length; i++) {
+        if (dpe[i]) {
+            if (countryData.totalCases[i])
+                result.push(dpe[i]/countryData.totalCases[i]);
+            else
+                result.push(null);
+        }
+        else
+            result.push(null);
+    }
+    
+    return result;
 }
 
 function smoothenData(d)
