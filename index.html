@@ -38,7 +38,7 @@
           <option value="D">Total Reported Deaths</option>
           <option value="d">New Reported Deaths</option>
           <option value="P">"Diamond Princess Estimate"</option>
-          <option value="p">"Diamond Princess Estimate" to Total Reported Cases</option>
+          <option value="p">"Diamond Princess Estimate" to Reported Cases</option>
         </select>
       </div>
 
@@ -99,7 +99,7 @@
         Smoother Parameters:
         <div>
           <label for="smoothenDays">Period [Days]:<!-- TODO: explainer --></label>
-          <input type="range" min="3" max="40" value="8" class="range" id="smoothenDays" oninput="updateControlInfos()"  onchange="recalculateCurvesAndPlot()">
+          <input type="range" min="3" max="40" value="7" class="range" id="smoothenDays" oninput="updateControlInfos()"  onchange="recalculateCurvesAndPlot()">
           <div class="rangeInfo" id="smoothenDaysInfo">Unset</div>
         </div>
       </div>
