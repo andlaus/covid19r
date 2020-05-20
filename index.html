@@ -8,11 +8,14 @@
     <link rel="stylesheet" href="covid19r.css" />
     <link rel="shortcut icon" href="images/favicon.png" type="image/x-icon" />
 
+    <link rel="stylesheet" href="node_modules/select2/dist/css/select2.css" rel="stylesheet" />
+
     <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <title>Covid-19 Effective Reproduction Number (R) Estimates</title>
 
+    <script src="node_modules/jquery/dist/jquery.min.js"></script>
   </head>
   
   <body style="background-color: #fff" onload="initPlot()">
@@ -63,9 +66,9 @@
 
       <div id="countrylistbox">
         Countries:
-        <div id="countrylist">
-          unset
-        </div>
+        <select name="Languages" id="countrylist" class="form-control" multiple="multiple" style="width: 100%; height: 50px;" size="1">
+          <option value="NONE">loading...</option>
+        </select>
       </div>
 
       <div id="rparameters">
@@ -102,5 +105,6 @@
       </div>
 
     </div>
+    <script src="node_modules/select2/dist/js/select2.min.js"></script>
   </body>
 </html>

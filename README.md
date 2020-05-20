@@ -43,3 +43,12 @@ COUNTRY="Germany"
 ```terminal
 ./extractAllCountries.sh
 ```
+
+## Development Hints
+
+How to add a new JavaScript dependency:
+
+1. Add it to `package.json`
+2. `npm install`
+3. Use in `.html`
+4. Adapt `collectHtmlDependencies.sh`
