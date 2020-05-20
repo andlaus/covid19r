@@ -79,10 +79,9 @@ function updatePlot(autoscale = false)
         autoscale = true;
     }
 
-    // store old x and y range
     if (!autoscale) {
-        layout.xaxis.range = domElem.layout.xaxis.range;
-        layout.yaxis.range = domElem.layout.yaxis.range;
+        layout.xaxis.range = domElem.layout.xaxis.range.slice();
+        layout.yaxis.range = domElem.layout.yaxis.range.slice();
     }
         
     var plotlyData = [];
@@ -93,7 +92,6 @@ function updatePlot(autoscale = false)
     
     Plotly.newPlot(/*domElementId=*/'mainplot', plotlyData, layout, {modeBarButtonsToRemove: ["toggleSpikelines", "resetScale2d"]});
 
-    domElem = document.getElementById("mainplot");
     if (autoscale) {
         // remember the current range. we want to copy the arrays, not
         // just store a reference, so we have to call slice()
