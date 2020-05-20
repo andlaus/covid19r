@@ -523,8 +523,8 @@ function recalculateCurves()
             ds = smoothenData(dr);
             dates = inputData[countryName].dates.slice(0, dr.length)
 
-            drCaption += ", \"Diamond Princess Estimate\" to Total Cases";
-            dsCaption += ", Smoothened \"Diamond Princess Estimate\" Total Cases";
+            drCaption += ", \"Diamond Princess Estimate\" Ratio";
+            dsCaption += ", Smoothened \"Diamond Princess Estimate\" Ratio";
 
             if (normalize) {
                 dr = normalizeData(countryName, dr);
