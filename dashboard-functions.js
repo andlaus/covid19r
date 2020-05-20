@@ -327,7 +327,8 @@ function diamondPrincessEstimateRatio(countryName)
 function smoothenData(d)
 {
     var n = parseFloat(document.getElementById("smoothenDays").value);
-
+    var offset = Math.floor(n/2);
+    
     var result = [];
 
     // backward box filter
@@ -336,8 +337,10 @@ function smoothenData(d)
         var s = 0.0;
 
         for (var j = 0; j < n; j ++) {
-            var k = i - j;
+            var k = i + offset - j;
             if (k < 0)
+                continue;
+            if (k >= d.length)
                 continue;
 
             if (d[k] == null)
