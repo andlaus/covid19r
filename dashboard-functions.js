@@ -288,15 +288,15 @@ function diamondPrincessEstimate(countryName)
     // assumption is that new cases are reported 7 days after
     // infection and if they end deadly, death will occur 21 days
     // after infection.
-    for (var i = 13; i < inputData[countryName].totalDeaths.length; i++) {
-        if (countryData.totalDeaths[i])
-            result.push(countryData.totalDeaths[i] / (13./712));
+    for (var i = 13; i < inputData[countryName].newDeaths.length; i++) {
+        if (countryData.newDeaths[i])
+            result.push(countryData.newDeaths[i] / (13./712));
         else
             result.push(null);
     }
 
-    for (var i = Math.max(0, inputData[countryName].totalDeaths.length - 14);
-         i < inputData[countryName].totalDeaths.length;
+    for (var i = Math.max(0, inputData[countryName].newDeaths.length - 14);
+         i < inputData[countryName].newDeaths.length;
          i++) {
         result.push(null);
     }
@@ -312,8 +312,8 @@ function diamondPrincessEstimateRatio(countryName)
     
     for (var i = 0; i < countryData.totalCases.length; i++) {
         if (dpe[i]) {
-            if (countryData.totalCases[i])
-                result.push(dpe[i]/countryData.totalCases[i]);
+            if (countryData.newCases[i])
+                result.push(dpe[i]/countryData.newCases[i]);
             else
                 result.push(null);
         }
@@ -335,8 +335,9 @@ function smoothenData(d)
     for (var i = 0; i < d.length; i ++) {
         var numValues = 0;
         var s = 0.0;
+        var lastK = -1;
 
-        for (var j = 0; j < n; j ++) {
+        for (var j = n - 1; j >= 0; j --) {
             var k = i + offset - j;
             if (k < 0)
                 continue;
@@ -346,11 +347,17 @@ function smoothenData(d)
             if (d[k] == null)
                 continue;
 
+            lastK = k;
             s += d[k];
             numValues += 1;
         }
 
-        if (numValues > 0)
+        if (lastK < i)
+            // do not extrapolate via the "back door". this assumes
+            // that the data point in question is part of the box
+            // filter...
+            result.push(null);
+        else if (numValues > 0)
             result.push(s/numValues);
         else
             result.push(null);
