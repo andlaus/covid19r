@@ -39,6 +39,8 @@ for file in filesList:
 
         if country in ("Cruise Ship", "MS Zaandam", "Confirmed", "Country_Region"):
             continue
+
+        country = country.replace("US", "United States of America")
         
         countryList.append(country)
 

@@ -35,17 +35,31 @@ function readCountryList(onComplete = null)
     clRawFile.send(null);
 }
 
-function updatePlot()
+function updatePlot(autoscale = false)
 {
+    var domElem = document.getElementById("mainplot");
+
+    var layout = {
+        xaxis: {
+            rangemode: 'tozero',
+        },
+
+        yaxis: {
+            rangemode: 'tozero',
+        },
+    };
+
+    // store old x and y range
+    if (!autoscale && domElem.layout) {
+        layout.xaxis.range = domElem.layout.xaxis.range;
+        layout.yaxis.range = domElem.layout.yaxis.range;
+    }
+        
     var plotlyData = [];
 
     for (var c in plotlyCountryData) {
         plotlyData.push(...plotlyCountryData[c]);
     }
-
-    var layout = {
-        yaxis: { rangemode: 'tozero' }
-    };
     
     Plotly.newPlot(/*domElementId=*/'mainplot', plotlyData, layout, {
         modeBarButtonsToRemove: ["toggleSpikelines", "resetScale2d"],
@@ -62,12 +76,11 @@ function updateInfectivityPlot()
     weightsPlotElem.style.height = (widthPx/2) + "px";
 
     var numDaysInfectious = parseFloat(document.getElementById("infectivityDays").value);
-    var weightsOffset = parseFloat(document.getElementById("firstDayActive").value);
 
     var xAxis = [];
     var yAxis = [];
     for (var i = 0; i < numDaysInfectious; i++) {
-        xAxis.push(i + weightsOffset);
+        xAxis.push(i + infectivityOffset);
         yAxis.push(infectivityWeights[i]);
     }
 
@@ -80,8 +93,23 @@ function updateInfectivityPlot()
     });
     
     var layout = {
-        xaxis: { rangemode: 'tozero' },
-        yaxis: { rangemode: 'tozero' },
+        xaxis: {
+            title: "Days after Report",
+            rangemode: 'tozero'
+        },
+        yaxis: {
+            title: "Infectivity",
+            rangemode: 'tozero',
+            showticklabels: false,
+        },
+
+        margin: {
+            l: 10,
+            r: 10,
+            t: 20,
+            b: 40,
+            pad: 0,
+        },
     };
     
     Plotly.newPlot(/*domElementId=*/'infectivityplot', plotlyData, layout, {displayModeBar: false});
@@ -111,14 +139,14 @@ function updateControlInfos()
 
 // recalculate the data of all curved and update the ploted curves as
 // well as the control elements.
-function recalculateCurvesAndPlot()
+function recalculateCurvesAndPlot(autoscale = false)
 {
     // play it safe and update the info labels for of the controls
     updateControlInfos();
 
     recalculateCurves();
 
-    updatePlot();
+    updatePlot(autoscale);
 }
 
 function nChosek(n, k)
@@ -144,7 +172,7 @@ function updateInfectivityWeights()
     infectivityWeights = [];
 
     var numDaysInfectious = parseFloat(document.getElementById("infectivityDays").value);
-    var weightsOffset = parseFloat(document.getElementById("firstDayActive").value);
+    infectivityOffset = parseFloat(document.getElementById("firstDayActive").value);
     var k = parseFloat(document.getElementById("peakDayActive").value);
 
     var s = 0.0;
@@ -559,8 +587,8 @@ function initPlot()
         document.getElementById("countrylist").innerHTML = countriesHtml;
 
         addCountry("Germany");
-        //addCountry("Italy");
-        //addCountry("US");
+        addCountry("Italy");
+        addCountry("United States of America");
 
         updateControlInfos();
         updatePlot();
