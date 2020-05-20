@@ -10,6 +10,7 @@
 
     <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.css" rel="stylesheet" />
     <link rel="stylesheet" href="node_modules/@fortawesome/fontawesome-free/css/all.css" rel="stylesheet" />
+    <link rel="stylesheet" href="node_modules/select2/dist/css/select2.css" rel="stylesheet" />
 
     <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -75,9 +76,10 @@
 
       <div id="countrylistbox">
         Countries:
-        <div id="countrylist">
-          unset
-        </div>
+
+        <select name="Languages" id="countrylist" class="form-control" multiple="multiple">
+          <option value="NONE">unset</option>
+        </select>
       </div>
 
       <div id="rparameters">
@@ -118,5 +120,6 @@
 
     <script src="node_modules/jquery/dist/jquery.js"></script>
     <script src="node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="node_modules/select2/dist/js/select2.min.js"></script>
   </body>
 </html>

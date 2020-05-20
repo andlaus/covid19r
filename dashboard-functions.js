@@ -487,14 +487,6 @@ function recalculateCurves()
 
 function addCountry(country)
 {
-    // check the country's check box
-    elem = document.getElementById("checkbox"+country);
-
-    if (!elem)
-        return;
-
-    elem.checked = true;
-
     // read in the data for that country
     var rawFile = new XMLHttpRequest();
     rawFile.open("GET", "processed-data/"+country+".csv", false);
@@ -544,27 +536,13 @@ function addCountry(country)
         }
     }
     rawFile.send(null);
+    updatePlot();
 }
 
 function removeCountry(country)
 {
-    // check the country's check box
-    elem = document.getElementById("checkbox"+country);
-    elem.checked = false;
-
     delete inputData[country];
     delete plotlyCountryData[country];
-}
-
-function clickedOnCountry(country)
-{
-    elem = document.getElementById("checkbox"+country);
-
-    if (elem.checked)
-        addCountry(country);
-    else 
-        removeCountry(country);
-
     updatePlot();
 }
 
@@ -578,20 +556,39 @@ function initPlot()
             var country = countryNames[countryIdx];
             if (country == "")
                 continue;
-            countriesHtml += "<div>\n";
-            countriesHtml += "<input id=\"checkbox"+country+"\" type=\"checkbox\" value=\""+country+"\" onchange=\"clickedOnCountry('"+country+"')\" />\n";
-            countriesHtml += "<label for=\"checkbox"+country+"\">"+country+"</label>\n";
-            countriesHtml += "</div>\n";
+            countriesHtml += "<option value=\""+country+"\">"+country+"</option>\n";
         }
 
         document.getElementById("countrylist").innerHTML = countriesHtml;
 
-        addCountry("Germany");
-        addCountry("Italy");
-        addCountry("United States of America");
+        $(document).ready(function() {
+            $('#countrylist').select2();
+            $('#countrylist').on('select2:select', function (e) {
+                // console.log("select", e.params.data.id);
+                addCountry(e.params.data.id);
+            });
+            $('#countrylist').on('select2:unselect', function (e) {
+                console.log("unselect", e.params.data.id);
+                removeCountry(e.params.data.id);
+            });
 
-        updateControlInfos();
-        updatePlot();
+            $("#countrylist option[value='Germany']").prop('selected', true);
+            addCountry('Germany');
+
+            $("#countrylist option[value='Italy']").prop('selected', true);
+            addCountry('Italy');
+
+            $("#countrylist option[value='United States of America']").prop('selected', true);
+            addCountry('United States of America');
+
+            $('#countrylist').trigger('change.select2');
+
+            //$('#countrylist option[value=\'Germany\']').trigger('selected');
+
+            updateControlInfos();
+            updatePlot();
+        });
+
     });
 }
 
