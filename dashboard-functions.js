@@ -324,40 +324,45 @@ function diamondPrincessEstimateRatio(countryName)
     return result;
 }
 
-function smoothenData(d)
+function smoothenData(d, central = true)
 {
     var n = parseFloat(document.getElementById("smoothenDays").value);
-    var offset = Math.floor(n/2);
+
+    // number of days before the day we want to calculate the average
+    var offset = n;
+    if (central)
+        offset = Math.floor(n/2);
     
     var result = [];
 
-    // backward box filter
+    // find the range where the raw data does not consist of just
+    // null objects.
+    var rawDataRange = [0, d.length];
+    for (var i = 0; i + 1 < d.length && d[i] == null; i ++)
+        rawDataRange[0] = i + 1;
+    for (var i = d.length; i > rawDataRange[0] && d[i - 1] == null; --i)
+        rawDataRange[1] = i;
+
+    // box filter
     for (var i = 0; i < d.length; i ++) {
         var numValues = 0;
         var s = 0.0;
-        var lastK = -1;
 
-        for (var j = n - 1; j >= 0; j --) {
-            var k = i + offset - j;
-            if (k < 0)
+        for (var j = 0; j < n; j ++) {
+            var k = i + j - offset;
+            if (k < rawDataRange[0])
                 continue;
-            if (k >= d.length)
+            if (k >= rawDataRange[1])
                 continue;
 
             if (d[k] == null)
                 continue;
 
-            lastK = k;
             s += d[k];
             numValues += 1;
         }
 
-        if (lastK < i)
-            // do not extrapolate via the "back door". this assumes
-            // that the data point in question is part of the box
-            // filter...
-            result.push(null);
-        else if (numValues > 0)
+        if (numValues > 0)
             result.push(s/numValues);
         else
             result.push(null);
@@ -435,7 +440,12 @@ function recalculateCurves()
 
         if (curveType == "R"){
             dr = estimateR(countryName);
-            ds = smoothenData(dr);
+
+            // for the R factor estimate, it is more important to use
+            // the specified number of data points for the newest than
+            // to have a smaller delay for interior ones. we thus use
+            // backward smoothing.
+            ds = smoothenData(dr, false);
 
             drCaption += ", Estimated R";
             dsCaption += ", Smoothened Estimated R";
@@ -520,7 +530,11 @@ function recalculateCurves()
         }
         else if (curveType == "p"){
             dr = diamondPrincessEstimateRatio(countryName);
-            ds = smoothenData(dr);
+            // for the DPE ratio, it is more important to use the
+            // specified number of data points for the newest than to
+            // have a smaller delay for interior ones. we thus use
+            // backward smoothing.
+            ds = smoothenData(dr, false);
             dates = inputData[countryName].dates.slice(0, dr.length)
 
             drCaption += ", \"Diamond Princess Estimate\" Ratio";
