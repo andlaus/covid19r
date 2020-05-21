@@ -340,8 +340,11 @@ function smoothenData(d, central = true)
     var rawDataRange = [0, d.length];
     for (var i = 0; i + 1 < d.length && d[i] == null; i ++)
         rawDataRange[0] = i + 1;
-    for (var i = d.length; i > rawDataRange[0] && d[i - 1] == null; --i)
+    for (var i = d.length; i > rawDataRange[0]; --i) {
         rawDataRange[1] = i;
+        if (d[i - 1] != null)
+            break;
+    }
 
     // box filter
     for (var i = 0; i < d.length; i ++) {
@@ -362,7 +365,7 @@ function smoothenData(d, central = true)
             numValues += 1;
         }
 
-        if (i + 1 >= rawDataRange[1])
+        if (i >= rawDataRange[1])
             result.push(null);
         else if (numValues > 0)
             result.push(s/numValues);
