@@ -329,7 +329,7 @@ function smoothenData(d, central = true)
     var n = parseFloat(document.getElementById("smoothenDays").value);
 
     // number of days before the day we want to calculate the average
-    var offset = n;
+    var offset = n - 1;
     if (central)
         offset = Math.floor(n/2);
     
@@ -365,7 +365,7 @@ function smoothenData(d, central = true)
             numValues += 1;
         }
 
-        if (i >= rawDataRange[1])
+        if (i < rawDataRange[0] || i >= rawDataRange[1])
             result.push(null);
         else if (numValues > 0)
             result.push(s/numValues);
