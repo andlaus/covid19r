@@ -58,6 +58,13 @@ function updatePlot(autoscale = false)
     var domElem = document.getElementById("mainplot");
 
     var layout = {
+        showlegend: true,
+        legend: {
+            x: 1,
+            xanchor: 'right',
+            y: 1
+        },
+
         xaxis: {
             rangemode: 'tozero',
         },
