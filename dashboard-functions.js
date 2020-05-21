@@ -362,7 +362,9 @@ function smoothenData(d, central = true)
             numValues += 1;
         }
 
-        if (numValues > 0)
+        if (i + 1 >= rawDataRange[1])
+            result.push(null);
+        else if (numValues > 0)
             result.push(s/numValues);
         else
             result.push(null);
@@ -445,7 +447,7 @@ function recalculateCurves()
             // the specified number of data points for the newest than
             // to have a smaller delay for interior ones. we thus use
             // backward smoothing.
-            ds = smoothenData(dr, false);
+            ds = smoothenData(dr, /*central=*/false);
 
             drCaption += ", Estimated R";
             dsCaption += ", Smoothened Estimated R";
@@ -534,7 +536,7 @@ function recalculateCurves()
             // specified number of data points for the newest than to
             // have a smaller delay for interior ones. we thus use
             // backward smoothing.
-            ds = smoothenData(dr, false);
+            ds = smoothenData(dr, /*central=*/false);
             dates = inputData[countryName].dates.slice(0, dr.length)
 
             drCaption += ", \"Diamond Princess Estimate\" Ratio";
