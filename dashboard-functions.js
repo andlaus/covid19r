@@ -72,6 +72,14 @@ function updatePlot(autoscale = false)
         yaxis: {
             rangemode: 'tozero',
         },
+
+        margin: {
+            l: 40,
+            r: 40,
+            t: 40,
+            b: 40,
+            pad: 0,
+        },
     };
 
     if (!domElem.layout)
