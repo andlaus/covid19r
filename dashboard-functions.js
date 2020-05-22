@@ -60,6 +60,7 @@ function updatePlot(autoscale = false)
     var layout = {
         showlegend: true,
         legend: {
+            bgcolor: "#ffffff88",
             x: 1,
             xanchor: 'right',
             y: 1
@@ -143,12 +144,14 @@ function updateInfectivityPlot()
     var layout = {
         xaxis: {
             title: "Days after Report",
-            rangemode: 'tozero'
+            rangemode: 'tozero',
+            fixedrange: true,
         },
         yaxis: {
             title: "Infectivity",
             rangemode: 'tozero',
             showticklabels: false,
+            fixedrange: true,
         },
 
         margin: {
