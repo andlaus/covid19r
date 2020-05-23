@@ -11,7 +11,7 @@ echo > "$OUTPUT_DIR/countries.csv"
 
 for COUNTRY in $(./listCountries.py | tail -n +2); do
     echo -n "$COUNTRY: "
-    echo "$COUNTRY" >> "$OUTPUT_DIR/countries.csv" 
+     echo "$COUNTRY,$(./countryPopulation.py $COUNTRY)" >> "$OUTPUT_DIR/countries.csv" 
     ./estimateR.py "$COUNTRY" > "$OUTPUT_DIR/$COUNTRY.csv"
     tail -n +1 "$OUTPUT_DIR/$COUNTRY.csv"| wc -l
 done
