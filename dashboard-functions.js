@@ -14,6 +14,12 @@ var plotlyCountryData = {};
 var autoRangeX = null;
 var autoRangeY = null;
 
+// the index of the color which the next newly selected country gets
+// assigned to.
+var nextCountryColorIdx = 0;
+// the color indices of countries which have already been added
+var countryColorIndices = {};
+
 function readCountryList(onComplete = null)
 {
     var clRawFile = new XMLHttpRequest();
@@ -454,6 +460,7 @@ function recalculateCurves()
         countryPlotlyData = []
 
         var countryIdx = getGlobalCountryIndex(countryName);
+        var countryColorIdx = countryColorIndices[countryName]%colorListRaw.length;
 
         var dates = inputData[countryName].dates;
         var dr = null;
@@ -579,7 +586,7 @@ function recalculateCurves()
 
                 mode: 'lines',
                 line: {
-                    color: colorListRaw[countryIdx%colorListRaw.length],
+                    color: colorListRaw[countryColorIdx],
                 },
                 name: drCaption,
             });
@@ -591,7 +598,7 @@ function recalculateCurves()
 
                 mode: 'lines',
                 line: {
-                    color: colorListSmoothened[countryIdx%colorListSmoothened.length],
+                    color: colorListSmoothened[countryColorIdx],
                 },
                 name: dsCaption,
             });
@@ -603,6 +610,11 @@ function recalculateCurves()
 
 function addCountry(country)
 {
+    if (!(country in countryColorIndices)) {
+        countryColorIndices[country] = nextCountryColorIdx;
+        nextCountryColorIdx += 1;
+    }
+
     // read in the data for that country
     var rawFile = new XMLHttpRequest();
     rawFile.open("GET", "processed-data/"+country+".csv", false);
