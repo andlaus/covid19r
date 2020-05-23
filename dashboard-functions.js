@@ -6,6 +6,9 @@ var inputData = {}
 // list of all country names in the data set
 var countryNames = [];
 
+// dictionary with all country populations 
+var countryPopulation = {};
+
 // data fed to plotly.js for visualization
 var plotlyCountryData = {};
 
@@ -34,8 +37,10 @@ function readCountryList(onComplete = null)
                            delimitersToGuess: [ ' ' ],
                            complete: function(results) {
                                for (var i = 0; i < results.data.length; i++) {
-                                   if (results.data[i].length > 0)
+                                   if (results.data[i].length > 0) {
                                        countryNames.push(results.data[i][0])
+                                       countryPopulation[results.data[i][0]] = parseFloat(results.data[i][1]);
+                                   }
                                }
                            }
                        });
@@ -400,11 +405,19 @@ function smoothenData(d, central = true)
     return result;
 }
 
-function normalizeData(countryName, d)
+function normalizeData(countryName, data)
 {
-    // TODO: divide all array elementsby the number of captia of the
-    // country
-    return d;
+    var result = [];
+    var pop = countryPopulation[countryName];
+    
+    for (i in data) {
+        if (data[i] == null)
+            result.push(null);
+        else
+            result.push(100e3*parseFloat(data[i])/pop);
+    }
+
+    return result;
 }
 
 function getGlobalCountryIndex(countryName)
@@ -453,6 +466,7 @@ function recalculateCurves()
 
     var showRaw = document.getElementById("checkboxShowRaw").checked;
     var showSmoothened = document.getElementById("checkboxShowSmoothened").checked;
+    var normalize = document.getElementById("checkboxNormalize").checked;
     
     // update data fed to the plotly widget
     plotlyCountryData = {}
@@ -493,8 +507,8 @@ function recalculateCurves()
                 dr = normalizeData(countryName, dr);
                 ds = normalizeData(countryName, ds);
 
-                drCaption += " per Captia";
-                dsCaption += " per Captia";
+                drCaption += " per 100k Captia";
+                dsCaption += " per 100k Captia";
             }
         }
         else if (curveType == "c"){
@@ -508,8 +522,8 @@ function recalculateCurves()
                 dr = normalizeData(countryName, dr);
                 ds = normalizeData(countryName, ds);
 
-                drCaption += " per Captia";
-                dsCaption += " per Captia";
+                drCaption += " per 100k Captia";
+                dsCaption += " per 100k Captia";
             }
         }
         else if (curveType == "D"){
@@ -523,8 +537,8 @@ function recalculateCurves()
                 dr = normalizeData(countryName, dr);
                 ds = normalizeData(countryName, ds);
 
-                drCaption += " per Captia";
-                dsCaption += " per Captia";
+                drCaption += " per 100k Captia";
+                dsCaption += " per 100k Captia";
             }
         }
         else if (curveType == "d"){
@@ -538,8 +552,8 @@ function recalculateCurves()
                 dr = normalizeData(countryName, dr);
                 ds = normalizeData(countryName, ds);
 
-                drCaption += " per Captia";
-                dsCaption += " per Captia";
+                drCaption += " per 100k Captia";
+                dsCaption += " per 100k Captia";
             }
         }
         else if (curveType == "P") {
@@ -554,8 +568,8 @@ function recalculateCurves()
                 dr = normalizeData(countryName, dr);
                 ds = normalizeData(countryName, ds);
 
-                drCaption += " per Captia";
-                dsCaption += " per Captia";
+                drCaption += " per 100k Captia";
+                dsCaption += " per 100k Captia";
             }
         }
         else if (curveType == "p"){
@@ -570,13 +584,7 @@ function recalculateCurves()
             drCaption += ", \"Diamond Princess Estimate\" Ratio";
             dsCaption += ", Smoothened \"Diamond Princess Estimate\" Ratio";
 
-            if (normalize) {
-                dr = normalizeData(countryName, dr);
-                ds = normalizeData(countryName, ds);
-
-                drCaption += " per Captia";
-                dsCaption += " per Captia";
-            }
+            // it does not make sense to normalize the DPE ratio...
         }
 
         if (showRaw) {
