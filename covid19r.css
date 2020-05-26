@@ -60,6 +60,11 @@ body {
     text-align: center;
 }
 
+#noteslogocontainer {
+    float: right;
+    margin: 10px;
+}
+
 #powarelogo {
     width: 200px;
 }
