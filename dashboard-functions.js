@@ -507,8 +507,8 @@ function recalculateCurves()
                 dr = normalizeData(countryName, dr);
                 ds = normalizeData(countryName, ds);
 
-                drCaption += " per 100k Captia";
-                dsCaption += " per 100k Captia";
+                drCaption += " per 100k Capita";
+                dsCaption += " per 100k Capita";
             }
         }
         else if (curveType == "c"){
@@ -522,8 +522,8 @@ function recalculateCurves()
                 dr = normalizeData(countryName, dr);
                 ds = normalizeData(countryName, ds);
 
-                drCaption += " per 100k Captia";
-                dsCaption += " per 100k Captia";
+                drCaption += " per 100k Capita";
+                dsCaption += " per 100k Capita";
             }
         }
         else if (curveType == "D"){
@@ -537,8 +537,8 @@ function recalculateCurves()
                 dr = normalizeData(countryName, dr);
                 ds = normalizeData(countryName, ds);
 
-                drCaption += " per 100k Captia";
-                dsCaption += " per 100k Captia";
+                drCaption += " per 100k Capita";
+                dsCaption += " per 100k Capita";
             }
         }
         else if (curveType == "d"){
@@ -552,8 +552,8 @@ function recalculateCurves()
                 dr = normalizeData(countryName, dr);
                 ds = normalizeData(countryName, ds);
 
-                drCaption += " per 100k Captia";
-                dsCaption += " per 100k Captia";
+                drCaption += " per 100k Capita";
+                dsCaption += " per 100k Capita";
             }
         }
         else if (curveType == "P") {
@@ -568,8 +568,8 @@ function recalculateCurves()
                 dr = normalizeData(countryName, dr);
                 ds = normalizeData(countryName, ds);
 
-                drCaption += " per 100k Captia";
-                dsCaption += " per 100k Captia";
+                drCaption += " per 100k Capita";
+                dsCaption += " per 100k Capita";
             }
         }
         else if (curveType == "p"){
