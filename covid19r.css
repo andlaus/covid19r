@@ -10,23 +10,19 @@ body {
     align-items: stretch;
 }
 
-#plotcontainer {
-    background-color: rebeccapurple;
-}
-
 #mainplot {
     width: 100%;
     height: 100%;
 }
 
 #infectivityplot {
+    height: 250px;
     width: 100%;
 }
 
 #sidebar {
-    background-color: deepskyblue;
     width: 250px;
-    margin: 30px;
+    padding: 10px;
     overflow: scroll;
 }
 
@@ -65,7 +61,6 @@ body {
 }
 
 #logocontainer {
-    margin: 10px;
     width: 100%;
     text-align: center;
 }
@@ -97,4 +92,8 @@ body {
 .rangeInfo {
     width: 3ex;
     display: inline-block;
+}
+
+html {
+    font-size: 12px;
 }

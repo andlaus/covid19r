@@ -171,7 +171,10 @@ function updateInfectivityPlot() {
         },
     };
 
-    Plotly.newPlot(/*domElementId=*/'infectivityplot', plotlyData, layout, {displayModeBar: false});
+    Plotly.newPlot(/*domElementId=*/'infectivityplot', plotlyData, layout, {
+        displayModeBar: false,
+        responsive: true
+    });
 }
 
 // update the parameter slider info elements and the visualization of the binomial distribution
@@ -700,7 +703,6 @@ function initPlot() {
 function toggleSidebar() {
     var sideBar = $("#sidebar");
     if (sideBar.is(":visible")) {
-        console.log("hide");
         sideBar.addClass("d-none");
         sideBar.removeClass("d-block");
         sideBar.removeClass("d-xl-none");
@@ -708,7 +710,6 @@ function toggleSidebar() {
         $("#sidebarsmall").addClass("d-xl-none");
         $(".powarelogosmall").removeClass("d-none");
     } else {
-        console.log("show");
         sideBar.removeClass("d-none");
         sideBar.addClass("d-block");
         sideBar.addClass("d-xl-none");
@@ -716,4 +717,5 @@ function toggleSidebar() {
         $("#sidebarsmall").removeClass("d-xl-none");
         $(".powarelogosmall").addClass("d-none");
     }
+    updateInfectivityPlot();
 }
