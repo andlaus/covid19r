@@ -81,13 +81,13 @@
         <div>
           <label for="peakDayActive">Peak Infectiousness Day: <!-- TODO: explainer --></label>
           <div class="rangeInfo" id="peakDayActiveInfo">Unset</div>
-          <input type="range" min="3" max="40" value="11" class="range" id="peakDayActive" oninput="updateControlInfos()"  onchange="recalculateCurvesAndPlot()" />
+          <input type="range" min="3" max="40" value="5" class="range" id="peakDayActive" oninput="updateControlInfos()"  onchange="recalculateCurvesAndPlot()" />
         </div>
 
         <div>
           <label for="firstDayActive">First Infectious Day: <!-- TODO: explainer --></label>
           <div class="rangeInfo" id="firstDayActiveInfo">Unset</div>
-          <input type="range" min="-20" max="0" value="-9" class="range" id="firstDayActive" oninput="updateControlInfos()"  onchange="recalculateCurvesAndPlot()">
+          <input type="range" min="-20" max="0" value="-3" class="range" id="firstDayActive" oninput="updateControlInfos()"  onchange="recalculateCurvesAndPlot()">
         </div>
 
         <div id="infectivityplot"></div>
@@ -97,7 +97,7 @@
         Smoother Parameters:
         <div>
           <label for="smoothenDays">Period [Days]:<!-- TODO: explainer --></label>
-          <input type="range" min="3" max="40" value="7" class="range" id="smoothenDays" oninput="updateControlInfos()"  onchange="recalculateCurvesAndPlot()">
+          <input type="range" min="3" max="50" value="7" class="range" id="smoothenDays" oninput="updateControlInfos()"  onchange="recalculateCurvesAndPlot()">
           <div class="rangeInfo" id="smoothenDaysInfo">Unset</div>
         </div>
       </div>
