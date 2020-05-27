@@ -3,11 +3,11 @@ body {
     background-color: #fff;
 }
 
-#plotcontainer {
-    width: 79%;
-    max-width: calc(100% - 210px);
-    height: calc(100vh - 100px);
-    float: left;
+.wrapper {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    align-items: stretch;
 }
 
 #mainplot {
@@ -16,16 +16,22 @@ body {
 }
 
 #infectivityplot {
+    height: 150px;
     width: 100%;
 }
 
 #sidebar {
-    width: 20%;
-    height: 100vh;
-    min-width: 200px;
-    float: right;
+    min-width: 250px;
+    padding: 10px;
     overflow: scroll;
-    padding-left: 10px;
+}
+
+#sidebarsmall {
+    margin-top: 1px;
+    margin-right: 2px;
+    position: absolute;
+    top: 0;
+    right: 0;
 }
 
 #countrylist {
@@ -55,9 +61,13 @@ body {
 }
 
 #logocontainer {
-    margin: 10px;
     width: 100%;
     text-align: center;
+}
+
+.powarelogosmall {
+    width: 66px;
+    margin-top: 10px;
 }
 
 #noteslogocontainer {
@@ -82,4 +92,8 @@ body {
 .rangeInfo {
     width: 3ex;
     display: inline-block;
+}
+
+html {
+    font-size: 12px;
 }

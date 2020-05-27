@@ -8,7 +8,9 @@
     <link rel="stylesheet" href="covid19r.css" />
     <link rel="shortcut icon" href="images/favicon.png" type="image/x-icon" />
 
-    <link rel="stylesheet" href="node_modules/select2/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.css" rel="stylesheet" />
+    <link rel="stylesheet" href="node_modules/@fortawesome/fontawesome-free/css/all.css" rel="stylesheet" />
+    <link rel="stylesheet" href="node_modules/select2/dist/css/select2.css" rel="stylesheet" />
 
     <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -18,13 +20,26 @@
     <script src="node_modules/jquery/dist/jquery.min.js"></script>
   </head>
   
-  <body style="background-color: #fff" onload="initPlot()" onresize="updatePlot()">
-    <div id="plotcontainer">
-      <h1>Covid-19 Effective Reproduction Number (R) Estimates</h1>
-      <div id="mainplot"></div>
+  <body style="background-color: #fff" onload="initPlot()" class="vh-100">
+   <div class="wrapper">
+    <div id="plotcontainer" class="float-left w-100 h-100">
+      <div class="h-100 d-flex flex-column">
+      <div class="flex-column" style="padding-left: 15px; padding-top: 10px;">
+        <h1 class="d-block d-xl-none">Covid Curves</h1>
+        <h1 class="d-none d-xl-block">Covid-19 Effective Reproduction Number (R) Estimates</h1>
+      </div>
+      <div id="mainplot" class="flex-column flex-grow-1 overflow-auto"></div>
+      </div>
     </div>
 
-    <div id="sidebar">
+     <div id="sidebarsmall" class="d-block d-xl-none">
+       <a href="https://poware.org"><img class="powarelogosmall" src="poware-logo.svg" /></a>
+       <button type="button" class="btn" onclick="toggleSidebar();">
+         <i class="fas fa-bars" ></i>
+       </button>
+     </div>
+
+    <div id="sidebar" class="float-right d-none d-xl-block" style="">
       <div id="logocontainer" >
         <a href="https://poware.org/covid19"><img id="powarelogo" src="poware-logo.svg" /></a>
       </div>
@@ -103,6 +118,10 @@
       </div>
 
     </div>
+   </div>
+
+    <script src="node_modules/jquery/dist/jquery.js"></script>
+    <script src="node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
     <script src="node_modules/select2/dist/js/select2.min.js"></script>
   </body>
 </html>
