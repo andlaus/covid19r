@@ -1,0 +1,25 @@
+{
+  "name": "covid19r",
+  "version": "0.1.0-snapshot",
+  "description": "Estimate the basic reproduction number R of SARS-CoV 2 (the virus causing COVID-19) for various countries over time.",
+  "dependencies": {
+    "plotly.js": "^1.54.1",
+    "papaparse": "^5.2.0",
+    "bootstrap": "^4.5.0",
+    "jquery": "^3.5.1",
+    "select2": "^4.0.13"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/andlaus/covid19r.git"
+  },
+  "keywords": [
+    "COVID19"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/andlaus/covid19r/issues"
+  },
+  "homepage": "https://github.com/andlaus/covid19r#readme"
+}

@@ -6,8 +6,22 @@ var inputData = {}
 // list of all country names in the data set
 var countryNames = [];
 
+// dictionary with all country populations
+var countryPopulation = {};
+
 // data fed to plotly.js for visualization
 var plotlyCountryData = {};
+
+// ranges for the last autorange operations. Used to decide when to do
+// auto range and when not.
+var autoRangeX = null;
+var autoRangeY = null;
+
+// the index of the color which the next newly selected country gets
+// assigned to.
+var nextCountryColorIdx = 0;
+// the color indices of countries which have already been added
+var countryColorIndices = {};
 
 function readCountryList(onComplete = null)
 {
@@ -23,8 +37,10 @@ function readCountryList(onComplete = null)
                            delimitersToGuess: [ ' ' ],
                            complete: function(results) {
                                for (var i = 0; i < results.data.length; i++) {
-                                   if (results.data[i].length > 0)
+                                   if (results.data[i].length > 0) {
                                        countryNames.push(results.data[i][0])
+                                       countryPopulation[results.data[i][0]] = parseFloat(results.data[i][1]);
+                                   }
                                }
                            }
                        });
@@ -35,11 +51,32 @@ function readCountryList(onComplete = null)
     clRawFile.send(null);
 }
 
+function arrayEqual(a, b)
+{
+    if (a.length != b.length)
+        return false;
+
+    for (var i = 0; i < a.length; i++) {
+        if (a[i] != b[i])
+            return false;
+    }
+
+    return true;
+}
+
 function updatePlot(autoscale = false)
 {
     var domElem = document.getElementById("mainplot");
 
     var layout = {
+        showlegend: true,
+        legend: {
+            bgcolor: "#ffffff88",
+            x: 1,
+            xanchor: 'right',
+            y: 1
+        },
+
         xaxis: {
             rangemode: 'tozero',
         },
@@ -47,12 +84,31 @@ function updatePlot(autoscale = false)
         yaxis: {
             rangemode: 'tozero',
         },
+
+        margin: {
+            l: 40,
+            r: 40,
+            t: 40,
+            b: 40,
+            pad: 0,
+        },
     };
 
-    // store old x and y range
-    if (!autoscale && domElem.layout) {
-        layout.xaxis.range = domElem.layout.xaxis.range;
-        layout.yaxis.range = domElem.layout.yaxis.range;
+    if (!domElem.layout)
+        // for the first plotting operation, we always use autoscale
+        autoscale = true;
+
+    if (!autoscale &&
+        arrayEqual(autoRangeX, domElem.layout.xaxis.range) &&
+        arrayEqual(autoRangeY, domElem.layout.yaxis.range)) {
+        // we are not in forced autoscale mode but the axis have not
+        // been changed manually, so we autoscale them
+        autoscale = true;
+    }
+
+    if (!autoscale) {
+        layout.xaxis.range = domElem.layout.xaxis.range.slice();
+        layout.yaxis.range = domElem.layout.yaxis.range.slice();
     }
         
     var plotlyData = [];
@@ -65,6 +121,13 @@ function updatePlot(autoscale = false)
         modeBarButtonsToRemove: ["toggleSpikelines", "resetScale2d"],
         responsive: true
     });
+
+    if (autoscale) {
+        // remember the current range. we want to copy the arrays, not
+        // just store a reference, so we have to call slice()
+        autoRangeX = domElem.layout.xaxis.range.slice();
+        autoRangeY = domElem.layout.yaxis.range.slice();
+    }
 }
 
 function updateInfectivityPlot()
@@ -95,12 +158,14 @@ function updateInfectivityPlot()
     var layout = {
         xaxis: {
             title: "Days after Report",
-            rangemode: 'tozero'
+            rangemode: 'tozero',
+            fixedrange: true,
         },
         yaxis: {
             title: "Infectivity",
             rangemode: 'tozero',
             showticklabels: false,
+            fixedrange: true,
         },
 
         margin: {
@@ -245,30 +310,84 @@ function estimateR(countryName)
 
 function diamondPrincessEstimate(countryName)
 {
-    // TODO: actual stuff
-    return inputData[countryName].newCases;
+    countryData = inputData[countryName];
+
+    var result = [];
+
+    // We define the "Diamond Pricess Estimate" for a given day as the
+    // number of reported deaths in 14 days divided by the lethality
+    // on the Diamond Princess cruise ship. (i.e., 13/712 = 1.83%) The
+    // assumption is that new cases are reported 7 days after
+    // infection and if they end deadly, death will occur 21 days
+    // after infection.
+    for (var i = 13; i < inputData[countryName].newDeaths.length; i++) {
+        if (countryData.newDeaths[i])
+            result.push(countryData.newDeaths[i] / (13./712));
+        else
+            result.push(null);
+    }
+
+    for (var i = Math.max(0, inputData[countryName].newDeaths.length - 14);
+         i < inputData[countryName].newDeaths.length;
+         i++) {
+        result.push(null);
+    }
+
+    return result;
 }
 
 function diamondPrincessEstimateRatio(countryName)
 {
-    // TODO: actual stuff
-    return inputData[countryName].totalCases;
+    var countryData = inputData[countryName];
+    var dpe = diamondPrincessEstimate(countryName);
+    var result = [];
+
+    for (var i = 0; i < countryData.totalCases.length; i++) {
+        if (dpe[i]) {
+            if (countryData.newCases[i])
+                result.push(dpe[i]/countryData.newCases[i]);
+            else
+                result.push(null);
+        }
+        else
+            result.push(null);
+    }
+
+    return result;
 }
 
-function smoothenData(d)
+function smoothenData(d, central = true)
 {
     var n = parseFloat(document.getElementById("smoothenDays").value);
 
+    // number of days before the day we want to calculate the average
+    var offset = n - 1;
+    if (central)
+        offset = Math.floor(n/2);
+
     var result = [];
 
-    // backward box filter
+    // find the range where the raw data does not consist of just
+    // null objects.
+    var rawDataRange = [0, d.length];
+    for (var i = 0; i + 1 < d.length && d[i] == null; i ++)
+        rawDataRange[0] = i + 1;
+    for (var i = d.length; i > rawDataRange[0]; --i) {
+        rawDataRange[1] = i;
+        if (d[i - 1] != null)
+            break;
+    }
+
+    // box filter
     for (var i = 0; i < d.length; i ++) {
         var numValues = 0;
         var s = 0.0;
 
         for (var j = 0; j < n; j ++) {
-            var k = i - j;
-            if (k < 0)
+            var k = i + j - offset;
+            if (k < rawDataRange[0])
+                continue;
+            if (k >= rawDataRange[1])
                 continue;
 
             if (d[k] == null)
@@ -278,7 +397,9 @@ function smoothenData(d)
             numValues += 1;
         }
 
-        if (numValues > 0)
+        if (i < rawDataRange[0] || i >= rawDataRange[1])
+            result.push(null);
+        else if (numValues > 0)
             result.push(s/numValues);
         else
             result.push(null);
@@ -287,11 +408,19 @@ function smoothenData(d)
     return result;
 }
 
-function normalizeData(countryName, d)
+function normalizeData(countryName, data)
 {
-    // TODO: divide all array elementsby the number of captia of the
-    // country
-    return d;
+    var result = [];
+    var pop = countryPopulation[countryName];
+
+    for (i in data) {
+        if (data[i] == null)
+            result.push(null);
+        else
+            result.push(100e3*parseFloat(data[i])/pop);
+    }
+
+    return result;
 }
 
 function getGlobalCountryIndex(countryName)
@@ -340,13 +469,15 @@ function recalculateCurves()
 
     var showRaw = document.getElementById("checkboxShowRaw").checked;
     var showSmoothened = document.getElementById("checkboxShowSmoothened").checked;
-    
+    var normalize = document.getElementById("checkboxNormalize").checked;
+
     // update data fed to the plotly widget
     plotlyCountryData = {}
     for (var countryName in inputData) {
         countryPlotlyData = []
 
         var countryIdx = getGlobalCountryIndex(countryName);
+        var countryColorIdx = countryColorIndices[countryName]%colorListRaw.length;
 
         var dates = inputData[countryName].dates;
         var dr = null;
@@ -356,7 +487,12 @@ function recalculateCurves()
 
         if (curveType == "R"){
             dr = estimateR(countryName);
-            ds = smoothenData(dr);
+
+            // for the R factor estimate, it is more important to use
+            // the specified number of data points for the newest than
+            // to have a smaller delay for interior ones. we thus use
+            // backward smoothing.
+            ds = smoothenData(dr, /*central=*/false);
 
             drCaption += ", Estimated R";
             dsCaption += ", Smoothened Estimated R";
@@ -374,8 +510,8 @@ function recalculateCurves()
                 dr = normalizeData(countryName, dr);
                 ds = normalizeData(countryName, ds);
 
-                drCaption += " per Captia";
-                dsCaption += " per Captia";
+                drCaption += " per 100k Capita";
+                dsCaption += " per 100k Capita";
             }
         }
         else if (curveType == "c"){
@@ -389,8 +525,8 @@ function recalculateCurves()
                 dr = normalizeData(countryName, dr);
                 ds = normalizeData(countryName, ds);
 
-                drCaption += " per Captia";
-                dsCaption += " per Captia";
+                drCaption += " per 100k Capita";
+                dsCaption += " per 100k Capita";
             }
         }
         else if (curveType == "D"){
@@ -404,8 +540,8 @@ function recalculateCurves()
                 dr = normalizeData(countryName, dr);
                 ds = normalizeData(countryName, ds);
 
-                drCaption += " per Captia";
-                dsCaption += " per Captia";
+                drCaption += " per 100k Capita";
+                dsCaption += " per 100k Capita";
             }
         }
         else if (curveType == "d"){
@@ -419,8 +555,8 @@ function recalculateCurves()
                 dr = normalizeData(countryName, dr);
                 ds = normalizeData(countryName, ds);
 
-                drCaption += " per Captia";
-                dsCaption += " per Captia";
+                drCaption += " per 100k Capita";
+                dsCaption += " per 100k Capita";
             }
         }
         else if (curveType == "P") {
@@ -435,25 +571,23 @@ function recalculateCurves()
                 dr = normalizeData(countryName, dr);
                 ds = normalizeData(countryName, ds);
 
-                drCaption += " per Captia";
-                dsCaption += " per Captia";
+                drCaption += " per 100k Capita";
+                dsCaption += " per 100k Capita";
             }
         }
         else if (curveType == "p"){
             dr = diamondPrincessEstimateRatio(countryName);
-            ds = smoothenData(dr);
+            // for the DPE ratio, it is more important to use the
+            // specified number of data points for the newest than to
+            // have a smaller delay for interior ones. we thus use
+            // backward smoothing.
+            ds = smoothenData(dr, /*central=*/false);
             dates = inputData[countryName].dates.slice(0, dr.length)
 
-            drCaption += ", \"Diamond Princess Estimate\" to Total Cases";
-            dsCaption += ", Smoothened \"Diamond Princess Estimate\" Total Cases";
+            drCaption += ", \"Diamond Princess Estimate\" Ratio";
+            dsCaption += ", Smoothened \"Diamond Princess Estimate\" Ratio";
 
-            if (normalize) {
-                dr = normalizeData(countryName, dr);
-                ds = normalizeData(countryName, ds);
-
-                drCaption += " per Captia";
-                dsCaption += " per Captia";
-            }
+            // it does not make sense to normalize the DPE ratio...
         }
 
         if (showRaw) {
@@ -463,7 +597,7 @@ function recalculateCurves()
 
                 mode: 'lines',
                 line: {
-                    color: colorListRaw[countryIdx%colorListRaw.length],
+                    color: colorListRaw[countryColorIdx],
                 },
                 name: drCaption,
             });
@@ -475,7 +609,7 @@ function recalculateCurves()
 
                 mode: 'lines',
                 line: {
-                    color: colorListSmoothened[countryIdx%colorListSmoothened.length],
+                    color: colorListSmoothened[countryColorIdx],
                 },
                 name: dsCaption,
             });
@@ -487,6 +621,11 @@ function recalculateCurves()
 
 function addCountry(country)
 {
+    if (!(country in countryColorIndices)) {
+        countryColorIndices[country] = nextCountryColorIdx;
+        nextCountryColorIdx += 1;
+    }
+
     // read in the data for that country
     var rawFile = new XMLHttpRequest();
     rawFile.open("GET", "processed-data/"+country+".csv", false);
@@ -551,18 +690,20 @@ function initPlot()
     updateControlInfos();
 
     readCountryList(function () {
-        var countriesHtml = "";
-        for (var countryIdx in countryNames) {
-            var country = countryNames[countryIdx];
-            if (country == "")
-                continue;
-            countriesHtml += "<option value=\""+country+"\">"+country+"</option>\n";
-        }
-
-        document.getElementById("countrylist").innerHTML = countriesHtml;
-
         $(document).ready(function() {
-            $('#countrylist').select2();
+            var countries = [];
+            for (var countryIdx in countryNames) {
+                var country = countryNames[countryIdx];
+                if (country == "")
+                    continue;
+                countries.push({
+                    'id': country,
+                    'text': country,
+                });
+            };
+            $('#countrylist').select2({
+                data: countries,
+            });
             $('#countrylist').on('select2:select', function (e) {
                 // console.log("select", e.params.data.id);
                 addCountry(e.params.data.id);
@@ -575,20 +716,13 @@ function initPlot()
             $("#countrylist option[value='Germany']").prop('selected', true);
             addCountry('Germany');
 
-            $("#countrylist option[value='Italy']").prop('selected', true);
-            addCountry('Italy');
-
             $("#countrylist option[value='United States of America']").prop('selected', true);
             addCountry('United States of America');
 
             $('#countrylist').trigger('change.select2');
 
-            //$('#countrylist option[value=\'Germany\']').trigger('selected');
-
-            updateControlInfos();
-            updatePlot();
-        });
-
+        updateControlInfos();
+        updatePlot();
     });
 }
 

@@ -1,5 +1,6 @@
 body {
-    overflow-y: scroll;
+    overflow: hidden;
+    background-color: #fff;
 }
 
 .wrapper {
@@ -25,6 +26,7 @@ body {
     background-color: deepskyblue;
     width: 250px;
     margin: 30px;
+    overflow: scroll;
 }
 
 #sidebarsmall {
@@ -37,7 +39,7 @@ body {
 
 #countrylist {
     overflow: scroll;
-    height: 400px;
+    height: 300px;
     margin-top: 10px;
     margin-bottom: 20px;
 }
@@ -72,12 +74,17 @@ body {
     margin-top: 10px;
 }
 
+#noteslogocontainer {
+    float: right;
+    margin: 10px;
+}
+
 #powarelogo {
     width: 200px;
 }
 
 .rangewrap {
-
+    
 }
 
 .range {

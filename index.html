@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <script src="plotly-basic.min.js"></script>
-    <script src="papaparse.min.js"></script>
     <script src="dashboard-functions.js"></script>
+    <script src="node_modules/plotly.js/dist/plotly-basic.min.js"></script>
+    <script src="node_modules/papaparse/papaparse.min.js"></script>
 
     <link rel="stylesheet" href="covid19r.css" />
     <link rel="shortcut icon" href="images/favicon.png" type="image/x-icon" />
@@ -17,9 +17,10 @@
 
     <title>Covid-19 Effective Reproduction Number (R) Estimates</title>
 
+    <script src="node_modules/jquery/dist/jquery.min.js"></script>
   </head>
   
-  <body style="background-color: #fff" onload="initPlot()" class="">
+  <body style="background-color: #fff" onload="initPlot()" onresize="updatePlotXXXX()" class="">
    <div class="wrapper">
     <div id="plotcontainer" class="float-left w-100 h-100">
       <h1 class="d-block d-xl-none">Covid Curves</h1>
@@ -47,8 +48,8 @@
           <option value="c">New Reported Cases</option>
           <option value="D">Total Reported Deaths</option>
           <option value="d">New Reported Deaths</option>
-          <option value="P">Total Reported Cases and "Diamond Princess Estimate"</option>
-          <option value="p">"Diamond Princess Estimate" to Total Reported Cases</option>
+          <option value="P">New Cases, "Diamond Princess Estimate"</option>
+          <option value="p">"Diamond Princess Estimate" to Reported New Cases</option>
         </select>
       </div>
 
@@ -62,23 +63,20 @@
 
         <li>
           <input id="checkboxShowSmoothened" type="checkbox" checked onchange="recalculateCurvesAndPlot()">
-          <label for="checkboxShowSmoothened">Show Smothened Curves</label>
+          <label for="checkboxShowSmoothened">Show Smoothened Curves</label>
         </li>
 
-        <!--not implemented yet
         <li>
-          <input id="checkboxNormalize" type="checkbox" onchange="recalculateCurvesAndPlot()">
-          <label for="checkboxNormalize">Per-Captia Curves</label>
+          <input id="checkboxNormalize" type="checkbox" checked onchange="recalculateCurvesAndPlot()">
+          <label for="checkboxNormalize">Normalize by Population</label>
         </li>
-        -->
       </div>
 
 
       <div id="countrylistbox">
         Countries:
-
-        <select name="Languages" id="countrylist" class="form-control" multiple="multiple">
-          <option value="NONE">unset</option>
+        <select name="Languages" id="countrylist" class="form-control" multiple="multiple" style="width: 100%; height: 50px;" size="1">
+          <option value="NONE">loading...</option>
         </select>
       </div>
 
@@ -94,13 +92,13 @@
         <div>
           <label for="peakDayActive">Peak Infectiousness Day: <!-- TODO: explainer --></label>
           <div class="rangeInfo" id="peakDayActiveInfo">Unset</div>
-          <input type="range" min="3" max="40" value="11" class="range" id="peakDayActive" oninput="updateControlInfos()"  onchange="recalculateCurvesAndPlot()" />
+          <input type="range" min="3" max="40" value="5" class="range" id="peakDayActive" oninput="updateControlInfos()"  onchange="recalculateCurvesAndPlot()" />
         </div>
 
         <div>
           <label for="firstDayActive">First Infectious Day: <!-- TODO: explainer --></label>
           <div class="rangeInfo" id="firstDayActiveInfo">Unset</div>
-          <input type="range" min="-20" max="0" value="-9" class="range" id="firstDayActive" oninput="updateControlInfos()"  onchange="recalculateCurvesAndPlot()">
+          <input type="range" min="-20" max="0" value="-3" class="range" id="firstDayActive" oninput="updateControlInfos()"  onchange="recalculateCurvesAndPlot()">
         </div>
 
         <div id="infectivityplot"></div>
@@ -110,7 +108,7 @@
         Smoother Parameters:
         <div>
           <label for="smoothenDays">Period [Days]:<!-- TODO: explainer --></label>
-          <input type="range" min="3" max="40" value="8" class="range" id="smoothenDays" oninput="updateControlInfos()"  onchange="recalculateCurvesAndPlot()">
+          <input type="range" min="3" max="50" value="7" class="range" id="smoothenDays" oninput="updateControlInfos()"  onchange="recalculateCurvesAndPlot()">
           <div class="rangeInfo" id="smoothenDaysInfo">Unset</div>
         </div>
       </div>
