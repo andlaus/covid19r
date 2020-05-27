@@ -130,7 +130,7 @@ function updateInfectivityPlot() {
     var weightsPlotElem = document.getElementById("infectivityplot");
     var widthPx = weightsPlotElem.getBoundingClientRect().width
 
-    weightsPlotElem.style.height = (widthPx / 2) + "px";
+    //weightsPlotElem.style.height = (widthPx / 2) + "px";
 
     var numDaysInfectious = parseFloat(document.getElementById("infectivityDays").value);
 
@@ -706,14 +706,15 @@ function toggleSidebar() {
         sideBar.addClass("d-none");
         sideBar.removeClass("d-block");
         sideBar.removeClass("d-xl-none");
-        $("#mainplot").removeClass("d-none");
+        $("#plotcontainer").removeClass("d-none");
+        updatePlot();
         $("#sidebarsmall").addClass("d-xl-none");
         $(".powarelogosmall").removeClass("d-none");
     } else {
         sideBar.removeClass("d-none");
         sideBar.addClass("d-block");
         sideBar.addClass("d-xl-none");
-        $("#mainplot").addClass("d-none");
+        $("#plotcontainer").addClass("d-none");
         $("#sidebarsmall").removeClass("d-xl-none");
         $(".powarelogosmall").addClass("d-none");
     }

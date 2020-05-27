@@ -16,12 +16,12 @@ body {
 }
 
 #infectivityplot {
-    height: 250px;
+    height: 150px;
     width: 100%;
 }
 
 #sidebar {
-    width: 250px;
+    min-width: 250px;
     padding: 10px;
     overflow: scroll;
 }

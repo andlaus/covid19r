@@ -23,9 +23,13 @@
   <body style="background-color: #fff" onload="initPlot()" class="vh-100">
    <div class="wrapper">
     <div id="plotcontainer" class="float-left w-100 h-100">
-      <h1 class="d-block d-xl-none">Covid Curves</h1>
-      <h1 class="d-none d-xl-block">Covid-19 Effective Reproduction Number (R) Estimates</h1>
-      <div id="mainplot" class="h-100"></div>
+      <div class="h-100 d-flex flex-column">
+      <div class="flex-column" style="padding-left: 15px; padding-top: 10px;">
+        <h1 class="d-block d-xl-none">Covid Curves</h1>
+        <h1 class="d-none d-xl-block">Covid-19 Effective Reproduction Number (R) Estimates</h1>
+      </div>
+      <div id="mainplot" class="flex-column flex-grow-1 overflow-auto"></div>
+      </div>
     </div>
 
      <div id="sidebarsmall" class="d-block d-xl-none">
