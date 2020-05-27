@@ -23,27 +23,24 @@ var nextCountryColorIdx = 0;
 // the color indices of countries which have already been added
 var countryColorIndices = {};
 
-function readCountryList(onComplete = null)
-{
+function readCountryList(onComplete = null) {
     var clRawFile = new XMLHttpRequest();
     clRawFile.open("GET", "processed-data/countries.csv", false);
     clRawFile.overrideMimeType("text/csv");
-    clRawFile.onreadystatechange = function ()
-    {
-        if(clRawFile.readyState === 4 && (clRawFile.status === 200 || clRawFile.status == 0))
-        {
+    clRawFile.onreadystatechange = function () {
+        if (clRawFile.readyState === 4 && (clRawFile.status === 200 || clRawFile.status == 0)) {
             Papa.parse(clRawFile.responseText,
-                       {
-                           delimitersToGuess: [ ' ' ],
-                           complete: function(results) {
-                               for (var i = 0; i < results.data.length; i++) {
-                                   if (results.data[i].length > 0) {
-                                       countryNames.push(results.data[i][0])
-                                       countryPopulation[results.data[i][0]] = parseFloat(results.data[i][1]);
-                                   }
-                               }
-                           }
-                       });
+                {
+                    delimitersToGuess: [' '],
+                    complete: function (results) {
+                        for (var i = 0; i < results.data.length; i++) {
+                            if (results.data[i].length > 0) {
+                                countryNames.push(results.data[i][0])
+                                countryPopulation[results.data[i][0]] = parseFloat(results.data[i][1]);
+                            }
+                        }
+                    }
+                });
             if (onComplete)
                 onComplete();
         }
@@ -51,8 +48,7 @@ function readCountryList(onComplete = null)
     clRawFile.send(null);
 }
 
-function arrayEqual(a, b)
-{
+function arrayEqual(a, b) {
     if (a.length != b.length)
         return false;
 
@@ -64,8 +60,7 @@ function arrayEqual(a, b)
     return true;
 }
 
-function updatePlot(autoscale = false)
-{
+function updatePlot(autoscale = false) {
     var domElem = document.getElementById("mainplot");
 
     var layout = {
@@ -110,13 +105,13 @@ function updatePlot(autoscale = false)
         layout.xaxis.range = domElem.layout.xaxis.range.slice();
         layout.yaxis.range = domElem.layout.yaxis.range.slice();
     }
-        
+
     var plotlyData = [];
 
     for (var c in plotlyCountryData) {
         plotlyData.push(...plotlyCountryData[c]);
     }
-    
+
     Plotly.newPlot(/*domElementId=*/'mainplot', plotlyData, layout, {
         modeBarButtonsToRemove: ["toggleSpikelines", "resetScale2d"],
         responsive: true
@@ -130,13 +125,12 @@ function updatePlot(autoscale = false)
     }
 }
 
-function updateInfectivityPlot()
-{
+function updateInfectivityPlot() {
     // resize the DOM element to its proper height
     var weightsPlotElem = document.getElementById("infectivityplot");
     var widthPx = weightsPlotElem.getBoundingClientRect().width
 
-    weightsPlotElem.style.height = (widthPx/2) + "px";
+    weightsPlotElem.style.height = (widthPx / 2) + "px";
 
     var numDaysInfectious = parseFloat(document.getElementById("infectivityDays").value);
 
@@ -154,7 +148,7 @@ function updateInfectivityPlot()
 
         type: "bar",
     });
-    
+
     var layout = {
         xaxis: {
             title: "Days after Report",
@@ -176,13 +170,12 @@ function updateInfectivityPlot()
             pad: 0,
         },
     };
-    
+
     Plotly.newPlot(/*domElementId=*/'infectivityplot', plotlyData, layout, {displayModeBar: false});
 }
 
 // update the parameter slider info elements and the visualization of the binomial distribution
-function updateControlInfos()
-{
+function updateControlInfos() {
     var sliders = document.getElementsByClassName("range");
     for (var i = 0; i < sliders.length; i++) {
         var slider = sliders[i];
@@ -191,7 +184,7 @@ function updateControlInfos()
 
         if (!sliderInfo) {
             // oops; bug in the HTML
-            console.log("WARNING: Slider "+slider.id+" does not have any info element!");
+            console.log("WARNING: Slider " + slider.id + " does not have any info element!");
             continue;
         }
 
@@ -204,8 +197,7 @@ function updateControlInfos()
 
 // recalculate the data of all curved and update the ploted curves as
 // well as the control elements.
-function recalculateCurvesAndPlot(autoscale = false)
-{
+function recalculateCurvesAndPlot(autoscale = false) {
     // play it safe and update the info labels for of the controls
     updateControlInfos();
 
@@ -214,16 +206,15 @@ function recalculateCurvesAndPlot(autoscale = false)
     updatePlot(autoscale);
 }
 
-function nChosek(n, k)
-{
-    var k = Math.min(k, n-k)
+function nChosek(n, k) {
+    var k = Math.min(k, n - k)
 
     var numer = 1.0;
-    for (var i = n; i > n-k; i--)
+    for (var i = n; i > n - k; i--)
         numer *= i;
 
     var denom = 1.0;
-    for (var i = 1; i < k+1; i++)
+    for (var i = 1; i < k + 1; i++)
         denom *= i;
 
     return numer / denom;
@@ -232,8 +223,7 @@ function nChosek(n, k)
 var infectivityOffset = -3;
 var infectivityWeights = [];
 
-function updateInfectivityWeights()
-{
+function updateInfectivityWeights() {
     infectivityWeights = [];
 
     var numDaysInfectious = parseFloat(document.getElementById("infectivityDays").value);
@@ -241,12 +231,12 @@ function updateInfectivityWeights()
     var k = parseFloat(document.getElementById("peakDayActive").value);
 
     var s = 0.0;
-    for (var i = 1; i < numDaysInfectious + 1; i ++) {
+    for (var i = 1; i < numDaysInfectious + 1; i++) {
         var p = i / (numDaysInfectious + 1);
 
         var y = nChosek(numDaysInfectious + 1, k)
-                * Math.pow(p, k)
-                * Math.pow(1 - p, numDaysInfectious + 1 - k);
+            * Math.pow(p, k)
+            * Math.pow(1 - p, numDaysInfectious + 1 - k);
 
         s += y;
         infectivityWeights.push(y);
@@ -254,12 +244,11 @@ function updateInfectivityWeights()
 
     // normalize the weight array. this might not be necessary, but
     // I'm a statistics n00b and better safe than sorry...
-    for (var i = 1; i < infectivityWeights.length; i ++)
+    for (var i = 1; i < infectivityWeights.length; i++)
         infectivityWeights[i] /= s;
 }
 
-function estimateR(countryName)
-{
+function estimateR(countryName) {
     countryData = inputData[countryName];
 
     // creating an array of a given length full of zeros in JavaScript
@@ -292,24 +281,21 @@ function estimateR(countryName)
             // do not calculate R factors for dates where we have too
             // few infectious cases: It does not make sense.
             result[i] = null;
-        }
-        else if (!w) {
+        } else if (!w) {
             // we do not have enough past cases to calculate an R
             // factor for this day.
             if (countryData.newCases[i] > 0)
                 result[i] = 3.0;
             else
                 result[i] = 0.0;
-        }
-        else
+        } else
             result[i] = countryData.newCases[i] / w;
     }
 
     return result;
 }
 
-function diamondPrincessEstimate(countryName)
-{
+function diamondPrincessEstimate(countryName) {
     countryData = inputData[countryName];
 
     var result = [];
@@ -322,7 +308,7 @@ function diamondPrincessEstimate(countryName)
     // after infection.
     for (var i = 13; i < inputData[countryName].newDeaths.length; i++) {
         if (countryData.newDeaths[i])
-            result.push(countryData.newDeaths[i] / (13./712));
+            result.push(countryData.newDeaths[i] / (13. / 712));
         else
             result.push(null);
     }
@@ -336,8 +322,7 @@ function diamondPrincessEstimate(countryName)
     return result;
 }
 
-function diamondPrincessEstimateRatio(countryName)
-{
+function diamondPrincessEstimateRatio(countryName) {
     var countryData = inputData[countryName];
     var dpe = diamondPrincessEstimate(countryName);
     var result = [];
@@ -345,32 +330,30 @@ function diamondPrincessEstimateRatio(countryName)
     for (var i = 0; i < countryData.totalCases.length; i++) {
         if (dpe[i]) {
             if (countryData.newCases[i])
-                result.push(dpe[i]/countryData.newCases[i]);
+                result.push(dpe[i] / countryData.newCases[i]);
             else
                 result.push(null);
-        }
-        else
+        } else
             result.push(null);
     }
 
     return result;
 }
 
-function smoothenData(d, central = true)
-{
+function smoothenData(d, central = true) {
     var n = parseFloat(document.getElementById("smoothenDays").value);
 
     // number of days before the day we want to calculate the average
     var offset = n - 1;
     if (central)
-        offset = Math.floor(n/2);
+        offset = Math.floor(n / 2);
 
     var result = [];
 
     // find the range where the raw data does not consist of just
     // null objects.
     var rawDataRange = [0, d.length];
-    for (var i = 0; i + 1 < d.length && d[i] == null; i ++)
+    for (var i = 0; i + 1 < d.length && d[i] == null; i++)
         rawDataRange[0] = i + 1;
     for (var i = d.length; i > rawDataRange[0]; --i) {
         rawDataRange[1] = i;
@@ -379,11 +362,11 @@ function smoothenData(d, central = true)
     }
 
     // box filter
-    for (var i = 0; i < d.length; i ++) {
+    for (var i = 0; i < d.length; i++) {
         var numValues = 0;
         var s = 0.0;
 
-        for (var j = 0; j < n; j ++) {
+        for (var j = 0; j < n; j++) {
             var k = i + j - offset;
             if (k < rawDataRange[0])
                 continue;
@@ -400,16 +383,15 @@ function smoothenData(d, central = true)
         if (i < rawDataRange[0] || i >= rawDataRange[1])
             result.push(null);
         else if (numValues > 0)
-            result.push(s/numValues);
+            result.push(s / numValues);
         else
             result.push(null);
     }
-    
+
     return result;
 }
 
-function normalizeData(countryName, data)
-{
+function normalizeData(countryName, data) {
     var result = [];
     var pop = countryPopulation[countryName];
 
@@ -417,24 +399,22 @@ function normalizeData(countryName, data)
         if (data[i] == null)
             result.push(null);
         else
-            result.push(100e3*parseFloat(data[i])/pop);
+            result.push(100e3 * parseFloat(data[i]) / pop);
     }
 
     return result;
 }
 
-function getGlobalCountryIndex(countryName)
-{
-    for (var i = 0; i < countryNames.length; i++)  {
+function getGlobalCountryIndex(countryName) {
+    for (var i = 0; i < countryNames.length; i++) {
         if (countryNames[i] == countryName)
             return i;
     }
-    
+
     return countryNames.length;
 }
 
-function recalculateCurves()
-{
+function recalculateCurves() {
     updateInfectivityWeights();
 
     var colorListSmoothened = [
@@ -477,7 +457,7 @@ function recalculateCurves()
         countryPlotlyData = []
 
         var countryIdx = getGlobalCountryIndex(countryName);
-        var countryColorIdx = countryColorIndices[countryName]%colorListRaw.length;
+        var countryColorIdx = countryColorIndices[countryName] % colorListRaw.length;
 
         var dates = inputData[countryName].dates;
         var dr = null;
@@ -485,7 +465,7 @@ function recalculateCurves()
         var drCaption = countryName;
         var dsCaption = countryName;
 
-        if (curveType == "R"){
+        if (curveType == "R") {
             dr = estimateR(countryName);
 
             // for the R factor estimate, it is more important to use
@@ -498,8 +478,7 @@ function recalculateCurves()
             dsCaption += ", Smoothened Estimated R";
 
             // normalization does not make any sense for R factors!
-        }
-        else if (curveType == "C"){
+        } else if (curveType == "C") {
             dr = inputData[countryName].totalCases;
             ds = smoothenData(dr);
 
@@ -513,8 +492,7 @@ function recalculateCurves()
                 drCaption += " per 100k Capita";
                 dsCaption += " per 100k Capita";
             }
-        }
-        else if (curveType == "c"){
+        } else if (curveType == "c") {
             dr = inputData[countryName].newCases;
             ds = smoothenData(dr);
 
@@ -528,8 +506,7 @@ function recalculateCurves()
                 drCaption += " per 100k Capita";
                 dsCaption += " per 100k Capita";
             }
-        }
-        else if (curveType == "D"){
+        } else if (curveType == "D") {
             dr = inputData[countryName].totalDeaths;
             ds = smoothenData(dr);
 
@@ -543,8 +520,7 @@ function recalculateCurves()
                 drCaption += " per 100k Capita";
                 dsCaption += " per 100k Capita";
             }
-        }
-        else if (curveType == "d"){
+        } else if (curveType == "d") {
             dr = inputData[countryName].newDeaths;
             ds = smoothenData(dr);
 
@@ -558,8 +534,7 @@ function recalculateCurves()
                 drCaption += " per 100k Capita";
                 dsCaption += " per 100k Capita";
             }
-        }
-        else if (curveType == "P") {
+        } else if (curveType == "P") {
             dr = diamondPrincessEstimate(countryName);
             ds = smoothenData(dr);
             dates = inputData[countryName].dates.slice(0, dr.length)
@@ -574,8 +549,7 @@ function recalculateCurves()
                 drCaption += " per 100k Capita";
                 dsCaption += " per 100k Capita";
             }
-        }
-        else if (curveType == "p"){
+        } else if (curveType == "p") {
             dr = diamondPrincessEstimateRatio(countryName);
             // for the DPE ratio, it is more important to use the
             // specified number of data points for the newest than to
@@ -619,8 +593,7 @@ function recalculateCurves()
     }
 }
 
-function addCountry(country)
-{
+function addCountry(country) {
     if (!(country in countryColorIndices)) {
         countryColorIndices[country] = nextCountryColorIdx;
         nextCountryColorIdx += 1;
@@ -628,69 +601,68 @@ function addCountry(country)
 
     // read in the data for that country
     var rawFile = new XMLHttpRequest();
-    rawFile.open("GET", "processed-data/"+country+".csv", false);
+    rawFile.open("GET", "processed-data/" + country + ".csv", false);
     rawFile.overrideMimeType("text/csv");
-    rawFile.onreadystatechange = function ()
-    {
-        if(rawFile.readyState === 4 && (rawFile.status === 200 || rawFile.status == 0))
-        {
+    rawFile.onreadystatechange = function () {
+        if (rawFile.readyState === 4 && (rawFile.status === 200 || rawFile.status == 0)) {
             Papa.parse(rawFile.responseText,
-                       {
-                           delimitersToGuess: [' '],
-                           complete: function(results) {
-                               let xPoints = [];
-                               let yPointsTotalCases = [];
-                               let yPointsNewCases = [];
-                               let yPointsTotalDeaths = [];
-                               let yPointsNewDeaths = [];
+                {
+                    delimitersToGuess: [' '],
+                    complete: function (results) {
+                        let xPoints = [];
+                        let yPointsTotalCases = [];
+                        let yPointsNewCases = [];
+                        let yPointsTotalDeaths = [];
+                        let yPointsNewDeaths = [];
 
-                               let colIdxTotalCases = 1;
-                               let colIdxNewCases = 2;
-                               let colIdxTotalDeaths = 3;
-                               let colIdxNewDeaths = 4;
+                        let colIdxTotalCases = 1;
+                        let colIdxNewCases = 2;
+                        let colIdxTotalDeaths = 3;
+                        let colIdxNewDeaths = 4;
 
-                               for (let i = 1; i < results.data.length - 1; i++) {
-                                   xPoints.push(results.data[i][0]);
+                        for (let i = 1; i < results.data.length - 1; i++) {
+                            xPoints.push(results.data[i][0]);
 
-                                   yPointsTotalCases.push(parseFloat(results.data[i][colIdxTotalCases]));
-                                   yPointsNewCases.push(parseFloat(results.data[i][colIdxNewCases]));
-                                   yPointsTotalDeaths.push(parseFloat(results.data[i][colIdxTotalDeaths]));
-                                   yPointsNewDeaths.push(parseFloat(results.data[i][colIdxNewDeaths]));
-                               }
+                            yPointsTotalCases.push(parseFloat(results.data[i][colIdxTotalCases]));
+                            yPointsNewCases.push(parseFloat(results.data[i][colIdxNewCases]));
+                            yPointsTotalDeaths.push(parseFloat(results.data[i][colIdxTotalDeaths]));
+                            yPointsNewDeaths.push(parseFloat(results.data[i][colIdxNewDeaths]));
+                        }
 
-                               var cd = {
-                                   dates: xPoints,
+                        var cd = {
+                            dates: xPoints,
 
-                                   totalCases: yPointsTotalCases,
-                                   newCases: yPointsNewCases,
-                                   totalDeaths: yPointsTotalDeaths,
-                                   newDeaths: yPointsNewDeaths,
-                               };
+                            totalCases: yPointsTotalCases,
+                            newCases: yPointsNewCases,
+                            totalDeaths: yPointsTotalDeaths,
+                            newDeaths: yPointsNewDeaths,
+                        };
 
-                               inputData[country] = cd;
+                        inputData[country] = cd;
 
-                               recalculateCurves();
-                           }
-                       });
+                        recalculateCurves();
+                    }
+                });
         }
     }
     rawFile.send(null);
     updatePlot();
 }
 
-function removeCountry(country)
-{
+function removeCountry(country) {
     delete inputData[country];
     delete plotlyCountryData[country];
     updatePlot();
 }
 
-function initPlot()
-{
+function initPlot() {
     updateControlInfos();
 
     readCountryList(function () {
-        $(document).ready(function() {
+        updateControlInfos();
+        updatePlot();
+
+        $(document).ready(function () {
             var countries = [];
             for (var countryIdx in countryNames) {
                 var country = countryNames[countryIdx];
@@ -700,7 +672,8 @@ function initPlot()
                     'id': country,
                     'text': country,
                 });
-            };
+            }
+
             $('#countrylist').select2({
                 data: countries,
             });
@@ -720,9 +693,7 @@ function initPlot()
             addCountry('United States of America');
 
             $('#countrylist').trigger('change.select2');
-
-        updateControlInfos();
-        updatePlot();
+        });
     });
 }
 
