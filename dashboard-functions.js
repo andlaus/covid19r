@@ -117,6 +117,8 @@ function updatePlot(autoscale = false) {
         responsive: true
     });
 
+    domElem.on('plotly_legendclick', function(data){ return false; });
+        
     if (autoscale) {
         // remember the current range. we want to copy the arrays, not
         // just store a reference, so we have to call slice()
