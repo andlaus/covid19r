@@ -274,6 +274,26 @@ function estimateR(countryName) {
         }
     }
 
+    // for the last few days we need to improvise a bit: cases that
+    // will only be reported in the next few days will have a
+    // (typically relatively small) impact on the day which for which
+    // we ought to estimate the R factor. The problem is that for the
+    // newest data points, we do not know the number of cases for the
+    // next few days yet. Let's just take the average of the last week
+    // for this reason...
+    var lastWeekAverageCases = 0;
+    var n = Math.min(countryData.newCases.length, 7);
+    for (var i = countryData.newCases.length - n; i < countryData.newCases.length; ++i)
+        lastWeekAverageCases += countryData.newCases[i];
+    lastWeekAverageCases /= n;
+
+    // keep in mind that the injectivy offset is negative!
+    for (var dayIdx = result.length + infectivityOffset + 1; dayIdx < result.length; ++dayIdx) {
+        for (var i = 0; i < -infectivityOffset - (result.length - dayIdx) + 1; ++i) {
+            result[dayIdx] += lastWeekAverageCases*infectivityWeights[i];
+        }
+    }
+
     // compute the estimated R factor by dividing the actually seen
     // cases of a day by the attributable weight (currently in the
     // result array)
