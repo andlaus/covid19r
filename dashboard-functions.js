@@ -242,7 +242,7 @@ function updateInfectivityWeights() {
         var y = nChosek(numDaysInfectious + 1, k)
             * Math.pow(p, k)
             * Math.pow(1 - p, numDaysInfectious + 1 - k);
-
+        
         s += y;
         infectivityWeights.push(y);
     }
