@@ -60,6 +60,83 @@ function arrayEqual(a, b) {
     return true;
 }
 
+function updateUrl()
+{
+    var params = "";
+
+    var displayedCountries = Object.keys(inputData);
+    if (displayedCountries.length) {
+        params += "countries=";
+        for (var countryIdx = 0; countryIdx < displayedCountries.length; ++countryIdx) {
+            var countryName = displayedCountries[countryIdx]
+            if (countryIdx > 0)
+                params += ",";
+            params += encodeURIComponent(countryName);
+        }
+    }
+
+    var showRaw = document.getElementById("checkboxShowRaw").checked;
+    var showSmoothened = document.getElementById("checkboxShowSmoothened").checked;
+    var normalize = document.getElementById("checkboxNormalize").checked;
+
+    var showParamValue = "";
+    if (showRaw)
+        showParamValue += "raw";
+    if (showSmoothened) {
+        if (showParamValue != "")
+            showParamValue += ",";
+        showParamValue += "smoothened";
+    }
+    if (normalize) {
+        if (showParamValue != "")
+            showParamValue += ",";
+        showParamValue += "normalize";
+    }
+    if (showParamValue != "") {
+        if (params != "")
+            params += "&";
+        params += "show="+showParamValue;
+    }
+
+    var paramName = "infectivityDays";
+    var elem = document.getElementById(paramName);
+    if (elem.value != elem.defaultValue) {
+        if (params != "")
+            params += "&";
+        params += "daysInfectious="+elem.value;
+    }
+
+    paramName = "peakDayActive";
+    elem = document.getElementById(paramName);
+    if (elem.value != elem.defaultValue) {
+        if (params != "")
+            params += "&";
+        params += paramName+"="+elem.value;
+    }
+
+    paramName = "firstDayActive";
+    elem = document.getElementById(paramName);
+    if (elem.value != elem.defaultValue) {
+        if (params != "")
+            params += "&";
+        params += paramName+"="+elem.value;
+    }
+
+    paramName = "smoothenDays";
+    elem = document.getElementById(paramName);
+    if (elem.value != elem.defaultValue) {
+        if (params != "")
+            params += "&";
+        params += paramName+"="+elem.value;
+    }
+
+    var newUrl = window.location.protocol+"//"+window.location.pathname;
+    if (params)
+        newUrl += "?" + params;
+    
+    window.history.pushState("", "", newUrl);
+}
+    
 function updatePlot(autoscale = false) {
     var domElem = document.getElementById("mainplot");
 
@@ -208,6 +285,7 @@ function recalculateCurvesAndPlot(autoscale = false) {
 
     recalculateCurves();
 
+    updateUrl();
     updatePlot(autoscale);
 }
 
@@ -470,8 +548,6 @@ function recalculateCurves() {
 
     curveType = document.getElementById("curveType").value;
 
-    var normalize = false; //document.getElementById("checkboxNormalize").checked;
-
     var showRaw = document.getElementById("checkboxShowRaw").checked;
     var showSmoothened = document.getElementById("checkboxShowSmoothened").checked;
     var normalize = document.getElementById("checkboxNormalize").checked;
@@ -665,19 +741,32 @@ function addCountry(country) {
 
                         inputData[country] = cd;
 
+                        $("#countrylist option[value='"+country+"']").prop('selected', true);
+
                         recalculateCurves();
+                        updatePlot();
                     }
                 });
         }
     }
     rawFile.send(null);
-    updatePlot();
 }
 
 function removeCountry(country) {
     delete inputData[country];
     delete plotlyCountryData[country];
+    updateUrl();
     updatePlot();
+}
+
+function getParameterByName(name, url=null) {
+    if (!url) url = window.location.href;
+    name = name.replace(/[\[\]]/g, '\\$&');
+    var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, ' '));
 }
 
 function initPlot() {
@@ -707,17 +796,57 @@ function initPlot() {
                 addCountry(e.params.data.id);
             });
             $('#countrylist').on('select2:unselect', function (e) {
-                console.log("unselect", e.params.data.id);
+                //console.log("unselect", e.params.data.id);
                 removeCountry(e.params.data.id);
             });
 
-            $("#countrylist option[value='Germany']").prop('selected', true);
-            addCountry('Germany');
+            var countryListParam = getParameterByName('countries');
+            if (countryListParam == null) {
+                // TODO: make the default list of countries dependent
+                // on the browser's locale setting. (How?)
+                addCountry('Germany');
+                addCountry('United States of America');
+            }
+            else {
+                var initialCountryList = countryListParam.split(",");
+                for (countryIdx in initialCountryList) {
+                    addCountry(initialCountryList[countryIdx]);
+                }
+            }
 
-            $("#countrylist option[value='United States of America']").prop('selected', true);
-            addCountry('United States of America');
+            const curveParam = getParameterByName('curve');
+            if (curveParam != null) {
+                document.getElementById("curveType").value = curveParam;
+            }
+
+            const showParam = getParameterByName('show');
+            if (showParam != null) {
+                var showList = showParam.split(",");
+
+                document.getElementById("checkboxShowRaw").checked = (showList.indexOf("raw") >= 0);
+                document.getElementById("checkboxShowSmoothened").checked = (showList.indexOf("smoothened") >= 0);
+                document.getElementById("checkboxNormalize").checked = (showList.indexOf("normalize") >= 0);
+            }
+
+            const daysInfectiousParam = getParameterByName('daysInfectious');
+            if (daysInfectiousParam != null)
+                document.getElementById("infectivityDays").value = daysInfectiousParam;
+
+            const peakDayActiveParam = getParameterByName('peakDayActive');
+            if (peakDayActiveParam != null)
+                document.getElementById("peakDayActive").value = peakDayActiveParam;
+
+            const firstDayActiveParam = getParameterByName('firstDayActive');
+            if (firstDayActiveParam != null)
+                document.getElementById("firstDayActive").value = firstDayActiveParam;
+
+            const smoothenDaysParam = getParameterByName('smoothenDays');
+            if (smoothenDaysParam != null)
+                document.getElementById("smoothenDays").value = smoothenDaysParam;
 
             $('#countrylist').trigger('change.select2');
+
+            recalculateCurvesAndPlot();
         });
     });
 }
@@ -740,5 +869,6 @@ function toggleSidebar() {
         $("#sidebarsmall").removeClass("d-xl-none");
         $(".powarelogosmall").addClass("d-none");
     }
+    updateUrl();
     updateInfectivityPlot();
 }
