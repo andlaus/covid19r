@@ -75,24 +75,27 @@ function updateUrl()
         }
     }
 
-    var showRaw = document.getElementById("checkboxShowRaw").checked;
-    var showSmoothened = document.getElementById("checkboxShowSmoothened").checked;
-    var normalize = document.getElementById("checkboxNormalize").checked;
+    var showRawElem = document.getElementById("checkboxShowRaw");
+    var showSmoothenedElem = document.getElementById("checkboxShowSmoothened");
+    var normalizeElem = document.getElementById("checkboxNormalize");
 
     var showParamValue = "";
-    if (showRaw)
-        showParamValue += "raw";
-    if (showSmoothened) {
-        if (showParamValue != "")
-            showParamValue += ",";
-        showParamValue += "smoothened";
-    }
-    if (normalize) {
-        if (showParamValue != "")
-            showParamValue += ",";
-        showParamValue += "normalize";
-    }
-    if (showParamValue != "") {
+    if (showRawElem.checked != showRawElem.defaultChecked ||
+        showSmoothenedElem.checked != showSmoothenedElem.defaultChecked ||
+        normalizeElem.checked != normalizeElem.defaultChecked) {
+        if (showRawElem.checked)
+            showParamValue += "raw";
+        if (showSmoothenedElem.checked) {
+            if (showParamValue != "")
+                showParamValue += ",";
+            showParamValue += "smoothened";
+        }
+        if (normalizeElem.checked) {
+            if (showParamValue != "")
+                showParamValue += ",";
+            showParamValue += "normalize";
+        }
+
         if (params != "")
             params += "&";
         params += "show="+showParamValue;
@@ -100,7 +103,9 @@ function updateUrl()
 
     var paramName = "curveType";
     var elem = document.getElementById(paramName);
-    if (elem.value != elem.defaultValue) {
+    // this is quite hacky: there seems to be no good way to get the
+    // default selected value of <select> tags!
+    if (elem.value != "R") {
         if (params != "")
             params += "&";
         params += "curve="+elem.value;
