@@ -785,6 +785,27 @@ function getParameterByName(name, url=null) {
 function initPlot() {
     updateControlInfos();
 
+    // update the list of the countries added by default depending on
+    // the locale of the browser
+    var region = new Intl.Locale(navigator.language).region;
+
+    if (["US", "UK", "CA"].indexOf(region) >= 0)
+        defaultCountries = [ "Australia", "Canada", "United Kingdom", "United States of America" ];
+    else if (["AU", "NZ"].indexOf(region) >= 0)
+        defaultCountries = [ "Australia", "New Zealand", "United Kingdom", "United States of America" ];
+    else if (region == "DE")
+        defaultCountries = [ "Germany", "France", "States of America" ];
+    else if (["AT", "CH"].indexOf(region) >= 0)
+        defaultCountries = [ "Austria", "Germany", "United States of America",  "Switzerland" ];
+    else if (["FR", "IT", "ES"].indexOf(region) >= 0)
+        defaultCountries = [ "France", "Germany", "Italy", "Spain" ];
+    else if (["BE", "NL", "LU"].indexOf(region) >= 0)
+        defaultCountries = [ "Belgium", "Netherlands", "Luxembourg", "Germany" ];
+    else if (["NO", "DK", "SE", "FI"].indexOf(region) >= 0)
+        defaultCountries = [ "Norway", "Sweden", "Denmark", "Finland" ];
+    else
+        defaultCountries = [ "United States of America", "Germany" ];
+    
     readCountryList(function () {
         updateControlInfos();
         updatePlot();
@@ -817,10 +838,10 @@ function initPlot() {
 
             var countryListParam = getParameterByName('countries');
             if (countryListParam == null) {
-                // TODO: make the default list of countries dependent
-                // on the browser's locale setting. (How?)
-                addCountry('Germany');
-                addCountry('United States of America');
+                for (countryIdx in defaultCountries) {
+                    var country = defaultCountries[countryIdx];
+                    addCountry(country);
+                }
             }
             else {
                 var initialCountryList = countryListParam.split(",");
