@@ -130,7 +130,7 @@ function updateUrl()
         params += paramName+"="+elem.value;
     }
 
-    var newUrl = window.location.protocol+"//"+window.location.pathname;
+    var newUrl = "";
     if (params)
         newUrl += "?" + params;
     
