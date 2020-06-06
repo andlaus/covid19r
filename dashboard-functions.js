@@ -98,8 +98,16 @@ function updateUrl()
         params += "show="+showParamValue;
     }
 
-    var paramName = "infectivityDays";
+    var paramName = "curveType";
     var elem = document.getElementById(paramName);
+    if (elem.value != elem.defaultValue) {
+        if (params != "")
+            params += "&";
+        params += "curve="+elem.value;
+    }
+
+    paramName = "infectivityDays";
+    elem = document.getElementById(paramName);
     if (elem.value != elem.defaultValue) {
         if (params != "")
             params += "&";
