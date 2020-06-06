@@ -802,10 +802,12 @@ function initPlot() {
             $('#countrylist').on('select2:select', function (e) {
                 // console.log("select", e.params.data.id);
                 addCountry(e.params.data.id);
+                updateUrl();
             });
             $('#countrylist').on('select2:unselect', function (e) {
                 //console.log("unselect", e.params.data.id);
                 removeCountry(e.params.data.id);
+                updateUrl();
             });
 
             var countryListParam = getParameterByName('countries');
