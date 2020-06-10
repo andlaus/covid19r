@@ -344,7 +344,7 @@ function updateInfectivityWeights() {
         infectivityWeights[i] /= s;
 }
 
-function estimateR(countryName) {
+function estimateR(countryName, newCases) {
     countryData = inputData[countryName];
 
     // creating an array of a given length full of zeros in JavaScript
@@ -363,7 +363,7 @@ function estimateR(countryName) {
             else if (dayIdx >= result.length)
                 continue;
 
-            result[dayIdx] += countryData.newCases[i] * infectivityWeights[j];
+            result[dayIdx] += newCases[i] * infectivityWeights[j];
         }
     }
 
@@ -375,9 +375,9 @@ function estimateR(countryName) {
     // next few days yet. Let's just take the average of the last week
     // for this reason...
     var lastWeekAverageCases = 0;
-    var n = Math.min(countryData.newCases.length, 7);
-    for (var i = countryData.newCases.length - n; i < countryData.newCases.length; ++i)
-        lastWeekAverageCases += countryData.newCases[i];
+    var n = Math.min(newCases.length, 7);
+    for (var i = newCases.length - n; i < newCases.length; ++i)
+        lastWeekAverageCases += newCases[i];
     lastWeekAverageCases /= n;
 
     // keep in mind that the injectivy offset is negative!
@@ -400,12 +400,12 @@ function estimateR(countryName) {
         } else if (!w) {
             // we do not have enough past cases to calculate an R
             // factor for this day.
-            if (countryData.newCases[i] > 0)
+            if (newCases[i] > 0)
                 result[i] = 3.0;
             else
                 result[i] = 0.0;
         } else
-            result[i] = countryData.newCases[i] / w;
+            result[i] = newCases[i] / w;
     }
 
     return result;
@@ -580,13 +580,15 @@ function recalculateCurves() {
         var dsCaption = countryName;
 
         if (curveType == "R") {
-            dr = estimateR(countryName);
+            countryData = inputData[countryName];
+            dr = estimateR(countryName, countryData.newCases);
 
             // for the R factor estimate, it is more important to use
             // the specified number of data points for the newest than
             // to have a smaller delay for interior ones. we thus use
             // backward smoothing.
-            ds = smoothenData(dr, /*central=*/false);
+            var dsc = smoothenData(countryData.newCases, /*central=*/false);
+            ds = estimateR(countryName, dsc);
 
             drCaption += ", Estimated R";
             dsCaption += ", Smoothened Estimated R";
