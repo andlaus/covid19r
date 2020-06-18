@@ -68,3 +68,10 @@ Adding a new JavaScript dependency can be achieved like this:
 2. Run `npm install`
 3. Use it in the `.html` and `.js` files
 4. Adapt `collectHtmlDependencies.sh`
+
+## More Information on COVID-19
+
+- Background article: <https://medium.com/@tomaspueyo/coronavirus-act-today-or-people-will-die-f4d3d9cd99ca>
+- Awesome Resources on COVID-19: <https://github.com/soroushchehresa/awesome-coronavirus#awesome-coronavirus---->
+- CCC's collection of information resources: <https://github.com/cwoomi/cert-covid19#dashboards>
+
