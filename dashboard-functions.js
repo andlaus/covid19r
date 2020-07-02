@@ -25,7 +25,7 @@ var countryColorIndices = {};
 
 function readCountryList(onComplete = null) {
     var clRawFile = new XMLHttpRequest();
-    clRawFile.open("GET", "processed-data/countries.csv", false);
+    clRawFile.open("GET", "processed-data/countries.csv?date="+new Date(), false);
     clRawFile.overrideMimeType("text/csv");
     clRawFile.onreadystatechange = function () {
         if (clRawFile.readyState === 4 && (clRawFile.status === 200 || clRawFile.status == 0)) {
@@ -717,7 +717,7 @@ function addCountry(country) {
 
     // read in the data for that country
     var rawFile = new XMLHttpRequest();
-    rawFile.open("GET", "processed-data/" + country + ".csv", false);
+    rawFile.open("GET", "processed-data/" + country + ".csv?date="+new Date(), false);
     rawFile.overrideMimeType("text/csv");
     rawFile.onreadystatechange = function () {
         if (rawFile.readyState === 4 && (rawFile.status === 200 || rawFile.status == 0)) {
