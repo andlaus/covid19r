@@ -25,7 +25,7 @@ var countryColorIndices = {};
 
 function readCountryList(onComplete = null) {
     var clRawFile = new XMLHttpRequest();
-    clRawFile.open("GET", "processed-data/countries.csv", false);
+    clRawFile.open("GET", "processed-data/countries.csv?date="+new Date(), false);
     clRawFile.overrideMimeType("text/csv");
     clRawFile.onreadystatechange = function () {
         if (clRawFile.readyState === 4 && (clRawFile.status === 200 || clRawFile.status == 0)) {
@@ -411,9 +411,7 @@ function estimateR(countryName, newCases) {
     return result;
 }
 
-function diamondPrincessEstimate(countryName) {
-    countryData = inputData[countryName];
-
+function diamondPrincessEstimate(newDeaths) {
     var result = [];
 
     // We define the "Diamond Pricess Estimate" for a given day as the
@@ -422,15 +420,15 @@ function diamondPrincessEstimate(countryName) {
     // assumption is that new cases are reported 7 days after
     // infection and if they end deadly, death will occur 21 days
     // after infection.
-    for (var i = 13; i < inputData[countryName].newDeaths.length; i++) {
-        if (countryData.newDeaths[i])
-            result.push(countryData.newDeaths[i] / (13. / 712));
+    for (var i = 13; i < newDeaths.length; i++) {
+        if (newDeaths[i])
+            result.push(newDeaths[i] / (13. / 712));
         else
             result.push(null);
     }
 
-    for (var i = Math.max(0, inputData[countryName].newDeaths.length - 14);
-         i < inputData[countryName].newDeaths.length;
+    for (var i = Math.max(0, newDeaths.length - 14);
+         i < newDeaths.length;
          i++) {
         result.push(null);
     }
@@ -438,19 +436,20 @@ function diamondPrincessEstimate(countryName) {
     return result;
 }
 
-function diamondPrincessEstimateRatio(countryName) {
-    var countryData = inputData[countryName];
-    var dpe = diamondPrincessEstimate(countryName);
+function diamondPrincessEstimateRatio(newDeaths, newCases) {
     var result = [];
 
-    for (var i = 0; i < countryData.totalCases.length; i++) {
-        if (dpe[i]) {
-            if (countryData.newCases[i])
-                result.push(dpe[i] / countryData.newCases[i]);
+    var dpe = diamondPrincessEstimate(newDeaths);
+    for (var i = 0; i < newCases.length; i++) {
+        if (newCases[i]) {
+            if (dpe[i])
+                result.push(dpe[i] / newCases[i]);
             else
                 result.push(null);
         } else
-            result.push(null);
+            // some largeish placeholder. we don't want null here
+            // because that would mean "too little data"
+            result.push(10.0);
     }
 
     return result;
@@ -651,8 +650,10 @@ function recalculateCurves() {
                 dsCaption += " per 100k Capita";
             }
         } else if (curveType == "P") {
-            dr = diamondPrincessEstimate(countryName);
-            ds = smoothenData(dr);
+            var newDeathsSmoothened = smoothenData(inputData[countryName].newDeaths, /*central=*/false);
+
+            dr = diamondPrincessEstimate(inputData[countryName].newDeaths);
+            ds = diamondPrincessEstimate(newDeathsSmoothened);
             dates = inputData[countryName].dates.slice(0, dr.length)
 
             drCaption += ", \"Diamond Princess Estimate\"";
@@ -666,12 +667,20 @@ function recalculateCurves() {
                 dsCaption += " per 100k Capita";
             }
         } else if (curveType == "p") {
-            dr = diamondPrincessEstimateRatio(countryName);
             // for the DPE ratio, it is more important to use the
             // specified number of data points for the newest than to
             // have a smaller delay for interior ones. we thus use
-            // backward smoothing.
-            ds = smoothenData(dr, /*central=*/false);
+            // backward smoothing. Also, in order to avoid the
+            // spurious effects on the curves (the denominator might
+            // be close to zero in some places which will result in a
+            // spurious high estimate that would propagate to the
+            // smoothened curve) we smoothen the input data, not the
+            // raw curve.
+            var newDeathsSmoothened = smoothenData(inputData[countryName].newDeaths, /*central=*/false);
+            var newCasesSmoothened = smoothenData(inputData[countryName].newCases, /*central=*/false);
+            
+            dr = diamondPrincessEstimateRatio(inputData[countryName].newDeaths, inputData[countryName].newCases);
+            ds = diamondPrincessEstimateRatio(newDeathsSmoothened, newCasesSmoothened);
             dates = inputData[countryName].dates.slice(0, dr.length)
 
             drCaption += ", \"Diamond Princess Estimate\" Ratio";
@@ -717,7 +726,7 @@ function addCountry(country) {
 
     // read in the data for that country
     var rawFile = new XMLHttpRequest();
-    rawFile.open("GET", "processed-data/" + country + ".csv", false);
+    rawFile.open("GET", "processed-data/" + country + ".csv?date="+new Date(), false);
     rawFile.overrideMimeType("text/csv");
     rawFile.onreadystatechange = function () {
         if (rawFile.readyState === 4 && (rawFile.status === 200 || rawFile.status == 0)) {
