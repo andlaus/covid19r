@@ -303,7 +303,7 @@ def printCountryCsv(db, country, outFile):
         print(f'{db[country]["timeList"][i].strftime("%Y-%m-%d")}' + \
               f' {db[country]["totalCases"][i]}'+ \
               f' {db[country]["deltaCases"][i]}'+ \
-              f' {db[country]["totalDeaths"]}'+ \
+              f' {db[country]["totalDeaths"][i]}'+ \
               f' {db[country]["deltaDeaths"][i]}'+ \
               f' {R}'+ \
               f' {tc2}'+ \
