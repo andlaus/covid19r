@@ -165,7 +165,60 @@ def createDatabase():
             curLine = curLine.replace('"Korea, South"', "South Korea")
             curLine = curLine.replace('Republic of Korea', "South Korea")
             curLine = curLine.replace('Taiwan*', "Taiwan")
+
+            curLine = curLine.replace("Iran (Islamic Republic of)", "Iran")
+            curLine = curLine.replace("occupied Palestinian territory", "West Bank and Gaza")
+            curLine = curLine.replace("Palestine", "West Bank and Gaza")
+            curLine = curLine.replace("Republic of Ireland", "Ireland")
+            curLine = curLine.replace("Republic of Moldova", "Moldova")
+            curLine = curLine.replace("Republic of Congo", "Congo (Brazzaville)")
+            curLine = curLine.replace("Republic of the Congo", "Congo (Brazzaville)")
+            curLine = curLine.replace("Czech Republic", "Czechia")    
+            curLine = curLine.replace("East Timor", "Timor-Leste")
+            curLine = curLine.replace(" Azerbaijan", "Azerbaijan")
+            curLine = curLine.replace(" Afghanistan", "Afghanistan")
+            curLine = curLine.replace("Cape Verde", "Cabo Verde")
+            curLine = curLine.replace("Vatican City", "Holy See")
+            curLine = curLine.replace("Viet Nam", "Vietnam")
+            curLine = curLine.replace("UK", "United Kingdom")
+            curLine = curLine.replace("The Gambia", "Gambia")
+            curLine = curLine.replace("The Bahamas", "Bahamas")
+            curLine = curLine.replace("Taipei and environs", "Taiwan")
+            curLine = curLine.replace("Russian Federation", "Russia")
+            curLine = curLine.replace("Ivory Coast", "Cote d'Ivoire")
+            
             curLine = curLine.replace('Mainland China', "China")
+            curLine = curLine.replace("Hong Kong SAR", "China")
+            curLine = curLine.replace("Hong Kong", "China")
+            curLine = curLine.replace("Macao SAR", "China")
+            curLine = curLine.replace("Macau", "China")
+
+            curLine = curLine.replace("US", "United States of America")
+            curLine = curLine.replace("Puerto Rico", "United States of America")
+            curLine = curLine.replace("Guam", "United States of America")
+
+            curLine = curLine.replace("North Ireland", "United Kingdom")
+            curLine = curLine.replace("Gibraltar", "United Kingdom")
+            curLine = curLine.replace("Cayman Islands", "United Kingdom")
+            curLine = curLine.replace("Channel Islands", "United Kingdom")
+            curLine = curLine.replace("Jersey", "United Kingdom")
+            curLine = curLine.replace("Guernsey", "United Kingdom")
+
+            curLine = curLine.replace("Martinique", "France")
+            curLine = curLine.replace("Guadeloupe", "France")
+            curLine = curLine.replace("French Guiana", "France")    
+            curLine = curLine.replace("St. Martin", "France")
+            curLine = curLine.replace("Saint Martin", "France")
+            curLine = curLine.replace("Saint Barthelemy", "France")
+            curLine = curLine.replace("Reunion", "France")
+            curLine = curLine.replace("Mayotte", "France")
+
+            curLine = curLine.replace("Greenland", "Denmark")    
+            curLine = curLine.replace("Faroe Islands", "Denmark")    
+
+            curLine = curLine.replace("Aruba", "Netherlands")
+            curLine = curLine.replace("Curacao", "Netherlands")
+
             curLine = re.sub("\"[a-zA-Z0-9,(). ]*\",", ",", curLine) # US City names screw things up with commas in their names
 
             fields = curLine.split(",")
@@ -192,10 +245,11 @@ def createDatabase():
                 if fields[8] != "":
                     numDeaths = int(fields[8])
 
-            country = country.replace("US", "United States of America")
+            country = country.replace("Cruise Ship", "Diamond Princess")
 
-            if country != country:
+            if country in ["Others", "MS Zaandam"]:
                 continue
+
 
             if country not in db:
                 db[country] = {

@@ -13,7 +13,7 @@ echo > "$OUTPUT_DIR/countries.csv"
 
 ./estimateRAll.py
 
-for COUNTRY in $(./listCountries.py | tail -n +2); do
+for COUNTRY in $(./listCountries.py); do
     echo "$COUNTRY,$(./countryPopulation.py $COUNTRY)" >> "$OUTPUT_DIR/countries.csv" 
 
     mv "$COUNTRY.csv" "$OUTPUT_DIR/"
