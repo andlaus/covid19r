@@ -462,7 +462,7 @@ function smoothenDataAdaptive(d) {
     var n = parseFloat(document.getElementById("smoothenDays").value);
 
     // number of days before the day we want to calculate the average
-    var offset = (n - 1)/2;
+    var offset = Math.floor(n/2);
 
     var result = [];
 
@@ -484,8 +484,10 @@ function smoothenDataAdaptive(d) {
 
         // compute transition factor
         var beta = 0.0;
-        if (i > d.length - 15) {
-            beta = (d.length - i)/14;
+        if (i > d.length - n) {
+            offset = (n - 1)/2 * (d.length - i)/(n-1);
+            beta = offset - Math.floor(offset);
+            offset = Math.floor(offset);
         }
         
         for (var j = 0; j < n; j++) {
@@ -500,8 +502,8 @@ function smoothenDataAdaptive(d) {
 
             var alpha = 0.0;
             if (k > 0)
-                alpha = (1.0 - beta)*d[k - 1];
-            s += alpha + beta*d[k];
+                alpha = beta*d[k - 1];
+            s += alpha + (1.0 - beta)*d[k];
             numValues += 1;
         }
 
