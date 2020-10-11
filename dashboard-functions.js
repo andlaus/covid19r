@@ -455,13 +455,14 @@ function diamondPrincessEstimateRatio(newDeaths, newCases) {
     return result;
 }
 
-function smoothenData(d, central = true) {
+// smoothen the result data. for the first data points, central
+// avaraging is used, which transitions smoothly into backward
+// averaging in the last 14 days
+function smoothenDataAdaptive(d) {
     var n = parseFloat(document.getElementById("smoothenDays").value);
 
     // number of days before the day we want to calculate the average
-    var offset = n - 1;
-    if (central)
-        offset = Math.floor(n / 2);
+    var offset = (n - 1)/2;
 
     var result = [];
 
@@ -481,6 +482,12 @@ function smoothenData(d, central = true) {
         var numValues = 0;
         var s = 0.0;
 
+        // compute transition factor
+        var beta = 0.0;
+        if (i > d.length - 15) {
+            beta = (d.length - i)/14;
+        }
+        
         for (var j = 0; j < n; j++) {
             var k = i + j - offset;
             if (k < rawDataRange[0])
@@ -491,7 +498,10 @@ function smoothenData(d, central = true) {
             if (d[k] == null)
                 continue;
 
-            s += d[k];
+            var alpha = 0.0;
+            if (k > 0)
+                alpha = (1.0 - beta)*d[k - 1];
+            s += alpha + beta*d[k];
             numValues += 1;
         }
 
@@ -582,11 +592,7 @@ function recalculateCurves() {
             countryData = inputData[countryName];
             dr = estimateR(countryName, countryData.newCases);
 
-            // for the R factor estimate, it is more important to use
-            // the specified number of data points for the newest than
-            // to have a smaller delay for interior ones. we thus use
-            // backward smoothing.
-            var dsc = smoothenData(countryData.newCases, /*central=*/false);
+            var dsc = smoothenDataAdaptive(countryData.newCases);
             ds = estimateR(countryName, dsc);
 
             drCaption += ", Estimated R";
@@ -595,7 +601,7 @@ function recalculateCurves() {
             // normalization does not make any sense for R factors!
         } else if (curveType == "C") {
             dr = inputData[countryName].totalCases;
-            ds = smoothenData(dr);
+            ds = smoothenDataAdaptive(dr);
 
             drCaption += ", Total Cases";
             dsCaption += ", Smoothened Total Cases";
@@ -609,7 +615,7 @@ function recalculateCurves() {
             }
         } else if (curveType == "c") {
             dr = inputData[countryName].newCases;
-            ds = smoothenData(dr);
+            ds = smoothenDataAdaptive(dr);
 
             drCaption += ", New Cases";
             dsCaption += ", Smoothened New Cases";
@@ -623,7 +629,7 @@ function recalculateCurves() {
             }
         } else if (curveType == "D") {
             dr = inputData[countryName].totalDeaths;
-            ds = smoothenData(dr);
+            ds = smoothenDataAdaptive(dr);
 
             drCaption += ", Total Deaths";
             dsCaption += ", Smoothened Total Deaths";
@@ -637,7 +643,7 @@ function recalculateCurves() {
             }
         } else if (curveType == "d") {
             dr = inputData[countryName].newDeaths;
-            ds = smoothenData(dr);
+            ds = smoothenDataAdaptive(dr);
 
             drCaption += ", New Deaths";
             dsCaption += ", Smoothened New Deaths";
@@ -650,7 +656,7 @@ function recalculateCurves() {
                 dsCaption += " per 100k Capita";
             }
         } else if (curveType == "P") {
-            var newDeathsSmoothened = smoothenData(inputData[countryName].newDeaths, /*central=*/false);
+            var newDeathsSmoothened = smoothenDataAdaptive(inputData[countryName].newDeaths);
 
             dr = diamondPrincessEstimate(inputData[countryName].newDeaths);
             ds = diamondPrincessEstimate(newDeathsSmoothened);
@@ -667,17 +673,8 @@ function recalculateCurves() {
                 dsCaption += " per 100k Capita";
             }
         } else if (curveType == "p") {
-            // for the DPE ratio, it is more important to use the
-            // specified number of data points for the newest than to
-            // have a smaller delay for interior ones. we thus use
-            // backward smoothing. Also, in order to avoid the
-            // spurious effects on the curves (the denominator might
-            // be close to zero in some places which will result in a
-            // spurious high estimate that would propagate to the
-            // smoothened curve) we smoothen the input data, not the
-            // raw curve.
-            var newDeathsSmoothened = smoothenData(inputData[countryName].newDeaths, /*central=*/false);
-            var newCasesSmoothened = smoothenData(inputData[countryName].newCases, /*central=*/false);
+            var newDeathsSmoothened = smoothenDataAdaptive(inputData[countryName].newDeaths);
+            var newCasesSmoothened = smoothenDataAdaptive(inputData[countryName].newCases);
             
             dr = diamondPrincessEstimateRatio(inputData[countryName].newDeaths, inputData[countryName].newCases);
             ds = diamondPrincessEstimateRatio(newDeathsSmoothened, newCasesSmoothened);
