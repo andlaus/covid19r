@@ -486,7 +486,7 @@ function smoothenDataAdaptive(d) {
 
         // compute transition factor
         if (i > d.length - n - 1) {
-            offset = n/2 + n/2*(1.0 - (d.length - i - 1)/n);
+            offset = (n-1)/2 + (n-1)/2*(1.0 - (d.length - i - 1)/n);
             beta = offset - Math.floor(offset);
             offset = Math.floor(offset);
         }
