@@ -149,6 +149,25 @@ def fileNameToDateTime(fileName):
 filesList.sort(key=fileNameToDateTime)
 
 def createDatabase():
+    def applyErrata(db):
+        """Apply some errata to the raw data.
+
+        The intention is to e.g. smoothen big retrospecive corrections
+        of a country's data to fix obviously errors in the curves.
+        """
+        usEntry = db["United States of America"]
+
+        # the data for the US is strange on 28-01-2021. We interpolate
+        # the totals between the days before and after.
+        i = usEntry["timeList"].index(datetime.datetime(2021, 1, 28))
+        a = usEntry["totalCases"][i-1]
+        b = usEntry["totalCases"][i+1]
+        usEntry["totalCases"][i] = (a+b)/2
+
+        a = usEntry["totalDeaths"][i-1]
+        b = usEntry["totalDeaths"][i+1]
+        usEntry["totalDeaths"][i] = (a+b)/2
+    
     db = {}
 
     format1Date = datetime.datetime(2020, 3, 22)
@@ -266,6 +285,8 @@ def createDatabase():
             db[country]["totalCases"][-1] += numCases
             db[country]["totalDeaths"][-1] += numDeaths
 
+    applyErrata(db)
+            
     for country in db:
         # the number of daily new cases based on the total cases
         db[country]["deltaCases"] = []
