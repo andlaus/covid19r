@@ -4,6 +4,8 @@
 # Hopkins University
 import os
 import re
+import csv
+from estimateR import correctCountryName
 
 dataSourceDir = "COVID-19/csse_covid_19_data/csse_covid_19_daily_reports"
 
@@ -18,30 +20,19 @@ for root, dirs, files in os.walk(dataSourceDir):
 
 countryList = []
 for file in filesList:
-    for curLine in open(dataSourceDir + "/" + file).readlines():
-        # some countries have weird names and are not unique over
-        # time, rectify this
-        curLine = curLine.replace('"Korea, South"', "South Korea")
-        curLine = curLine.replace('"Bonaire, Sint Eustatius and Saba"', 'Bonaire; Sint Eustatius and Saba')
-        curLine = curLine.replace('Taiwan*', "Taiwan")
+    csv_reader = csv.reader(open(dataSourceDir + "/" + file).readlines(), delimiter=",")
+    header = next(csv_reader)
+    for fields in csv_reader:
+        country = fields[3]
 
-        fields = curLine.split(",")
-        country = None
-        if fields[3] != "":
-            if re.search("[0-9]", fields[3]):
-                # country names do not contain numbers
-                continue
-
-            country = fields[3]
-        else:
-            # line not applicable
+        if re.search("[0-9]", fields[3]):
+            # country names do not contain numbers
             continue
 
-        if country in ("Cruise Ship", "MS Zaandam", "Confirmed", "Country_Region"):
+        if country in ["", "MS Zaandam"]:
             continue
 
-        country = country.replace("US", "United States of America")
-        
+        country = correctCountryName(country)
         countryList.append(country)
 
 countryList = list(set(countryList))

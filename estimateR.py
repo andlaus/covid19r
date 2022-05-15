@@ -62,6 +62,7 @@
 import os
 import sys
 import re
+import csv
 import datetime
 import operator as op
 from functools import reduce
@@ -148,6 +149,70 @@ def fileNameToDateTime(fileName):
     return dt
 filesList.sort(key=fileNameToDateTime)
 
+def correctCountryName(country):
+    # some countries have weird names and are not unique over
+    # time, rectify this
+    country = country.replace('Korea, South', "South Korea")
+    country = country.replace('Republic of Korea', "South Korea")
+    country = country.replace('Taiwan*', "Taiwan")
+
+    country = country.replace("Iran (Islamic Republic of)", "Iran")
+    country = country.replace("occupied Palestinian territory", "West Bank and Gaza")
+    country = country.replace("Palestine", "West Bank and Gaza")
+    country = country.replace("Republic of Ireland", "Ireland")
+    country = country.replace("Republic of Moldova", "Moldova")
+    country = country.replace("Republic of Congo", "Congo (Brazzaville)")
+    country = country.replace("Republic of the Congo", "Congo (Brazzaville)")
+    country = country.replace("Czech Republic", "Czechia")
+    country = country.replace("East Timor", "Timor-Leste")
+    country = country.replace(" Azerbaijan", "Azerbaijan")
+    country = country.replace(" Afghanistan", "Afghanistan")
+    country = country.replace("Cape Verde", "Cabo Verde")
+    country = country.replace("Vatican City", "Holy See")
+    country = country.replace("Viet Nam", "Vietnam")
+    country = country.replace("UK", "United Kingdom")
+    country = country.replace("The Gambia", "Gambia")
+    country = country.replace("The Bahamas", "Bahamas")
+    country = country.replace("Taipei and environs", "Taiwan")
+    country = country.replace("Russian Federation", "Russia")
+    country = country.replace("Ivory Coast", "Cote d'Ivoire")
+
+    country = country.replace('Mainland China', "China")
+    country = country.replace("Hong Kong SAR", "China")
+    country = country.replace("Hong Kong", "China")
+    country = country.replace("Macao SAR", "China")
+    country = country.replace("Macau", "China")
+
+    country = country.replace("US", "United States of America")
+    country = country.replace("Puerto Rico", "United States of America")
+    country = country.replace("Guam", "United States of America")
+
+    country = country.replace("North Ireland", "United Kingdom")
+    country = country.replace("Gibraltar", "United Kingdom")
+    country = country.replace("Cayman Islands", "United Kingdom")
+    country = country.replace("Channel Islands", "United Kingdom")
+    country = country.replace("Jersey", "United Kingdom")
+    country = country.replace("Guernsey", "United Kingdom")
+
+    country = country.replace("Martinique", "France")
+    country = country.replace("Guadeloupe", "France")
+    country = country.replace("French Guiana", "France")
+    country = country.replace("St. Martin", "France")
+    country = country.replace("Saint Martin", "France")
+    country = country.replace("Saint Barthelemy", "France")
+    country = country.replace("Reunion", "France")
+    country = country.replace("Mayotte", "France")
+
+    country = country.replace("Greenland", "Denmark")
+    country = country.replace("Faroe Islands", "Denmark")
+
+    country = country.replace("Aruba", "Netherlands")
+    country = country.replace("Curacao", "Netherlands")
+
+    country = country.replace("Cruise Ship", "Diamond Princess")
+
+    return country
+
 def createDatabase():
     def applyErrata(db):
         """Apply some errata to the raw data.
@@ -155,99 +220,38 @@ def createDatabase():
         The intention is to e.g. smoothen big retrospecive corrections
         of a country's data to fix obviously errors in the curves.
         """
-        usEntry = db["United States of America"]
+        if "United States of America" in db:
+            usEntry = db["United States of America"]
 
-        # the data for the US is strange on 28-01-2021. We interpolate
-        # the totals between the days before and after.
-        i = usEntry["timeList"].index(datetime.datetime(2021, 1, 28))
-        a = usEntry["totalCases"][i-1]
-        b = usEntry["totalCases"][i+1]
-        usEntry["totalCases"][i] = (a+b)/2
+            # the data for the US is strange on 28-01-2021. We interpolate
+            # the totals between the days before and after.
+            i = usEntry["timeList"].index(datetime.datetime(2021, 1, 28))
+            a = usEntry["totalCases"][i-1]
+            b = usEntry["totalCases"][i+1]
+            usEntry["totalCases"][i] = (a+b)/2
 
-        a = usEntry["totalDeaths"][i-1]
-        b = usEntry["totalDeaths"][i+1]
-        usEntry["totalDeaths"][i] = (a+b)/2
-    
+            a = usEntry["totalDeaths"][i-1]
+            b = usEntry["totalDeaths"][i+1]
+            usEntry["totalDeaths"][i] = (a+b)/2
+
     db = {}
 
     format1Date = datetime.datetime(2020, 3, 22)
 
     for fileName in filesList:
         dt = fileNameToDateTime(fileName)
-        for i, curLine in enumerate(open(dataSourceDir + "/" + fileName).readlines()):
-            # skip first line (headlines)
-            if i == 0:
-                continue
 
-            # some countries have weird names and are not unique over
-            # time, rectify this
-            curLine = curLine.replace('"Korea, South"', "South Korea")
-            curLine = curLine.replace('Republic of Korea', "South Korea")
-            curLine = curLine.replace('Taiwan*', "Taiwan")
-
-            curLine = curLine.replace("Iran (Islamic Republic of)", "Iran")
-            curLine = curLine.replace("occupied Palestinian territory", "West Bank and Gaza")
-            curLine = curLine.replace("Palestine", "West Bank and Gaza")
-            curLine = curLine.replace("Republic of Ireland", "Ireland")
-            curLine = curLine.replace("Republic of Moldova", "Moldova")
-            curLine = curLine.replace("Republic of Congo", "Congo (Brazzaville)")
-            curLine = curLine.replace("Republic of the Congo", "Congo (Brazzaville)")
-            curLine = curLine.replace("Czech Republic", "Czechia")    
-            curLine = curLine.replace("East Timor", "Timor-Leste")
-            curLine = curLine.replace(" Azerbaijan", "Azerbaijan")
-            curLine = curLine.replace(" Afghanistan", "Afghanistan")
-            curLine = curLine.replace("Cape Verde", "Cabo Verde")
-            curLine = curLine.replace("Vatican City", "Holy See")
-            curLine = curLine.replace("Viet Nam", "Vietnam")
-            curLine = curLine.replace("UK", "United Kingdom")
-            curLine = curLine.replace("The Gambia", "Gambia")
-            curLine = curLine.replace("The Bahamas", "Bahamas")
-            curLine = curLine.replace("Taipei and environs", "Taiwan")
-            curLine = curLine.replace("Russian Federation", "Russia")
-            curLine = curLine.replace("Ivory Coast", "Cote d'Ivoire")
-            
-            curLine = curLine.replace('Mainland China', "China")
-            curLine = curLine.replace("Hong Kong SAR", "China")
-            curLine = curLine.replace("Hong Kong", "China")
-            curLine = curLine.replace("Macao SAR", "China")
-            curLine = curLine.replace("Macau", "China")
-
-            curLine = curLine.replace("US", "United States of America")
-            curLine = curLine.replace("Puerto Rico", "United States of America")
-            curLine = curLine.replace("Guam", "United States of America")
-
-            curLine = curLine.replace("North Ireland", "United Kingdom")
-            curLine = curLine.replace("Gibraltar", "United Kingdom")
-            curLine = curLine.replace("Cayman Islands", "United Kingdom")
-            curLine = curLine.replace("Channel Islands", "United Kingdom")
-            curLine = curLine.replace("Jersey", "United Kingdom")
-            curLine = curLine.replace("Guernsey", "United Kingdom")
-
-            curLine = curLine.replace("Martinique", "France")
-            curLine = curLine.replace("Guadeloupe", "France")
-            curLine = curLine.replace("French Guiana", "France")    
-            curLine = curLine.replace("St. Martin", "France")
-            curLine = curLine.replace("Saint Martin", "France")
-            curLine = curLine.replace("Saint Barthelemy", "France")
-            curLine = curLine.replace("Reunion", "France")
-            curLine = curLine.replace("Mayotte", "France")
-
-            curLine = curLine.replace("Greenland", "Denmark")    
-            curLine = curLine.replace("Faroe Islands", "Denmark")    
-
-            curLine = curLine.replace("Aruba", "Netherlands")
-            curLine = curLine.replace("Curacao", "Netherlands")
-
-            curLine = re.sub("\"[a-zA-Z0-9,(). ]*\",", ",", curLine) # US City names screw things up with commas in their names
-
-            fields = curLine.split(",")
+        csv_reader = csv.reader(open(dataSourceDir + "/" + fileName).readlines(), delimiter=",")
+        header = next(csv_reader)
+        for fields in csv_reader:
+            country = fields[3].strip()
 
             numCases = 0
             numDeaths = 0
             if dt < format1Date:
-                if fields[0] == "Cruise Ship":
+                if country == "Cruise Ship":
                     country = "Diamond Princess"
-                elif fields[0] == "Grand Princess Cruise Ship":
+                elif country == "Grand Princess Cruise Ship":
                     continue # the "grand princess cruise ship" data seems to be attributed to the US, we don't want that
                 elif fields[1] == "Cruise Ship":
                     country = fields[0]
@@ -264,11 +268,10 @@ def createDatabase():
                 if fields[8] != "":
                     numDeaths = int(fields[8])
 
-            country = country.replace("Cruise Ship", "Diamond Princess")
+            country = correctCountryName(country)
 
             if country in ["Others", "MS Zaandam"]:
                 continue
-
 
             if country not in db:
                 db[country] = {
@@ -276,7 +279,7 @@ def createDatabase():
                     "totalCases": [],
                     "totalDeaths": [],
                 }
-            
+
             if len(db[country]["timeList"]) == 0 or db[country]["timeList"][-1] != dt:
                 db[country]["timeList"].append(dt)
                 db[country]["totalCases"].append(0)
@@ -286,7 +289,7 @@ def createDatabase():
             db[country]["totalDeaths"][-1] += numDeaths
 
     applyErrata(db)
-            
+
     for country in db:
         # the number of daily new cases based on the total cases
         db[country]["deltaCases"] = []
@@ -388,13 +391,13 @@ def printCountryCsv(db, country, outFile):
               f' {db[country]["deltaDeaths"][i]}'+ \
               f' {Rs}'+ \
               f' {tc2s}', file=outFile)
-        
+
 if __name__ == "__main__":
     country = "Germany"
     if len(sys.argv) > 1:
         country = sys.argv[1]
-    
+
     db = createDatabase()
 
     printCountryCsv(db, country, sys.stdout)
-    
+
