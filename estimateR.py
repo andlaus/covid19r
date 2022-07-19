@@ -234,6 +234,17 @@ def createDatabase():
             b = usEntry["totalDeaths"][i+1]
             usEntry["totalDeaths"][i] = (a+b)/2
 
+        if "United Kingdom" in db:
+            ukEntry = db["United Kingdom"]
+
+            # the UK has a weird spike in the total case and death
+            # numbers of may 20 and may 21, 2022...
+            i = ukEntry["timeList"].index(datetime.datetime(2022, 5, 20))
+            ukEntry["totalCases"][i] -= 1.926e6
+            ukEntry["totalCases"][i + 1] -= 1.926e6
+            ukEntry["totalDeaths"][i] -= 12300
+            ukEntry["totalDeaths"][i + 1] -= 12300
+
     db = {}
 
     format1Date = datetime.datetime(2020, 3, 22)
