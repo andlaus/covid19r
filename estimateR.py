@@ -245,6 +245,13 @@ def createDatabase():
             ukEntry["totalDeaths"][i] -= 12300
             ukEntry["totalDeaths"][i + 1] -= 12300
 
+            # the UK has ~ 5000k spurious deaths between April 29th
+            # 2020 and August 16, 2020
+            i0 = ukEntry["timeList"].index(datetime.datetime(2020, 4, 29))
+            i1 = ukEntry["timeList"].index(datetime.datetime(2020, 8, 17))
+            for i in range(i0, i1):
+                ukEntry["totalDeaths"][i] -= 4919
+
     db = {}
 
     format1Date = datetime.datetime(2020, 3, 22)
