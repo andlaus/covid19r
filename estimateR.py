@@ -239,9 +239,9 @@ def createDatabase():
 
             # the UK had a weird spike in the total case and death
             # numbers of may 20 and may 21, 2022...
-            #i = ukEntry["timeList"].index(datetime.datetime(2022, 5, 20))
-            #ukEntry["totalCases"][i] -= 1.926e6
-            #ukEntry["totalCases"][i + 1] -= 1.926e6
+            i = ukEntry["timeList"].index(datetime.datetime(2022, 5, 20))
+            ukEntry["totalCases"][i] -= 1.926e6
+            ukEntry["totalCases"][i + 1] -= 1.926e6
             #ukEntry["totalDeaths"][i] -= 12300
             #ukEntry["totalDeaths"][i + 1] -= 12300
 
